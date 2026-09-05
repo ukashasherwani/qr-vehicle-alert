@@ -219,6 +219,7 @@ function OwnerDashboard() {
                         <p className="text-sm font-bold text-slate-900">{alertContent.title}</p>
                         {alertContent.message && <p className="mt-1 text-sm text-slate-600">{alertContent.message}</p>}
                       <p className="mt-2 text-xs text-slate-400">{alert.vehicleId?.plateNumber || 'Unknown vehicle'} · {new Date(alert.createdAt).toLocaleString()}</p>
+                        {alert.imageUrl && <a href={alert.imageUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block"><img src={alert.imageUrl} alt="Alert evidence" className="h-20 w-20 rounded-lg object-cover ring-1 ring-slate-200 transition hover:opacity-80" /></a>}
                       </div>
                       <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold capitalize ${statusClasses(alert.status)}`}>{alert.status || 'pending'}</span>
                     </article>

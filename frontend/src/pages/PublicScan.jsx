@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Check, LoaderCircle, Send } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 
@@ -10,10 +10,17 @@ function PublicScan() {
   const [vehicle, setVehicle] = useState(null)
   const [selectedIssues, setSelectedIssues] = useState([])
   const [message, setMessage] = useState('')
+  const [image, setImage] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  const imagePreviewUrl = useMemo(() => (image ? URL.createObjectURL(image) : ''), [image])
+
+  useEffect(() => () => {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl)
+  }, [imagePreviewUrl])
 
   useEffect(() => {
     const loadVehicle = async () => {
@@ -46,13 +53,15 @@ function PublicScan() {
     try {
       const response = await fetch(`${API_URL}/alerts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vehicleId,
-          issueType: selectedIssues.filter((issue) => issue !== 'Custom').join(', ') || 'Custom',
-          message,
-          ownerEmail: vehicle.ownerEmail,
-        }),
+        body: (() => {
+          const formData = new FormData()
+          formData.append('vehicleId', vehicleId)
+          formData.append('issueType', selectedIssues.filter((issue) => issue !== 'Custom').join(', ') || 'Custom')
+          formData.append('message', message)
+          formData.append('ownerEmail', vehicle.ownerEmail || '')
+          if (image) formData.append('image', image)
+          return formData
+        })(),
       })
 
       if (!response.ok) {
@@ -62,6 +71,7 @@ function PublicScan() {
 
       setSelectedIssues([])
       setMessage('')
+      setImage(null)
       setSuccess(true)
     } catch (submitError) {
       setError(submitError.message)
@@ -105,6 +115,10 @@ function PublicScan() {
 
             <label className="mt-6 block text-sm font-semibold text-slate-700" htmlFor="message">Additional message</label>
             <textarea id="message" rows="4" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Add helpful details for the owner..." className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+
+            <label className="mt-6 block text-sm font-semibold text-slate-700" htmlFor="image">Photo evidence <span className="font-normal text-slate-500">(optional)</span></label>
+            <input id="image" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} className="mt-2 block w-full cursor-pointer rounded-lg border border-slate-300 text-sm text-slate-600 file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2.5 file:font-semibold file:text-slate-700 hover:file:bg-cyan-50" />
+            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Selected evidence preview" className="mt-3 h-20 w-20 rounded-lg object-cover ring-1 ring-slate-200" />}
 
             {error && <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
             {success && <p className="mt-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"><Check size={17} /> Alert sent to the vehicle owner.</p>}

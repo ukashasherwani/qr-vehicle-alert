@@ -11,6 +11,10 @@ const alertSchema = new mongoose.Schema({
   message: {
     type: String,
   },
+  imageUrl: {
+    type: String,
+    default: '',
+  },
   status: {
     type: String,
     default: 'pending',

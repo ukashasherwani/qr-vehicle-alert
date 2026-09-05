@@ -1,10 +1,38 @@
 const express = require('express');
+const cloudinary = require('cloudinary').v2;
 const mongoose = require('mongoose');
+const multer = require('multer');
 const nodemailer = require('nodemailer');
+const streamifier = require('streamifier');
 const Alert = require('../models/Alert');
 const Vehicle = require('../models/Vehicle');
 
 const router = express.Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, callback) => {
+    callback(null, file.mimetype.startsWith('image/'));
+  },
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const uploadImage = (buffer) => new Promise((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(
+    { folder: 'qr-vehicle-alert' },
+    (error, result) => {
+      if (error) reject(error);
+      else resolve(result.secure_url);
+    },
+  );
+
+  streamifier.createReadStream(buffer).pipe(stream);
+});
 
 // Brevo Transporter Configuration
 const transporter = nodemailer.createTransport({
@@ -17,7 +45,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', upload.single('image'), async (req, res, next) => {
   try {
     const { vehicleId, issueType, message, ownerEmail } = req.body;
 
@@ -35,11 +63,16 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ message: 'Vehicle owner email is unavailable' });
     }
 
+    const imageUrl = req.file ? await uploadImage(req.file.buffer) : '';
+
     const alert = await Alert.create({
       vehicleId,
       issueType,
       message,
+      imageUrl,
     });
+
+    const imageNotice = imageUrl ? `Image evidence: ${imageUrl}` : '';
 
     await transporter.sendMail({
       from: `"QR Vehicle Alert" <${process.env.SENDER_EMAIL}>`,
@@ -49,6 +82,7 @@ router.post('/', async (req, res, next) => {
         `A new issue was reported for vehicle ${vehicle.plateNumber}.`,
         `Issue: ${issueType || 'Not specified'}`,
         `Message: ${message || 'No additional message provided.'}`,
+        imageNotice,
       ].join('\n'),
     });
 
