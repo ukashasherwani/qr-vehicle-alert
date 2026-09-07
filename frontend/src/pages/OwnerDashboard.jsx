@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { useUser } from '@clerk/clerk-react'
 import { AlertCircle, CarFront, Plus, QrCode, RefreshCw } from 'lucide-react'
 import { QRCodeCanvas } from 'qrcode.react'
+import { io } from 'socket.io-client'
 
 const API_URL = '/api'
+const SOCKET_URL = 'http://127.0.0.1:5000'
 
 function statusClasses(status) {
   if (status === 'resolved') {
@@ -44,6 +46,7 @@ function OwnerDashboard() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [toast, setToast] = useState('')
 
   const loadDashboard = useCallback(async () => {
     if (!user) return
@@ -80,6 +83,31 @@ function OwnerDashboard() {
       loadDashboard()
     }
   }, [isLoaded, isSignedIn, loadDashboard])
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return undefined
+
+    const socket = io(SOCKET_URL)
+    const handleNewAlert = ({ alert, vehicleOwnerClerkId }) => {
+      if (vehicleOwnerClerkId !== user.id || !alert) return
+
+      setAlerts((currentAlerts) => {
+        if (currentAlerts.some((currentAlert) => currentAlert._id === alert._id)) {
+          return currentAlerts
+        }
+
+        return [alert, ...currentAlerts]
+      })
+      setToast('New alert received for your vehicle!')
+    }
+
+    socket.on('newAlert', handleNewAlert)
+
+    return () => {
+      socket.off('newAlert', handleNewAlert)
+      socket.disconnect()
+    }
+  }, [isLoaded, isSignedIn, user])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -120,6 +148,13 @@ function OwnerDashboard() {
     return () => clearTimeout(timeoutId)
   }, [success])
 
+  useEffect(() => {
+    if (!toast) return undefined
+
+    const timeoutId = setTimeout(() => setToast(''), 3000)
+    return () => clearTimeout(timeoutId)
+  }, [toast])
+
   if (!isLoaded || isLoading) {
     return <div className="mx-auto max-w-6xl px-6 py-16 text-slate-500">Loading dashboard...</div>
   }
@@ -130,6 +165,7 @@ function OwnerDashboard() {
 
   return (
     <main className="min-h-[calc(100vh-81px)] bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
+      {toast && <div role="status" className="fixed right-4 top-24 z-20 rounded-lg border border-cyan-200 bg-white px-4 py-3 text-sm font-semibold text-cyan-800 shadow-lg">{toast}</div>}
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>

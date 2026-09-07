@@ -72,6 +72,8 @@ router.post('/', upload.single('image'), async (req, res, next) => {
       imageUrl,
     });
 
+    await alert.populate('vehicleId');
+
     const imageNotice = imageUrl ? `Image evidence: ${imageUrl}` : '';
 
     await transporter.sendMail({
@@ -84,6 +86,11 @@ router.post('/', upload.single('image'), async (req, res, next) => {
         `Message: ${message || 'No additional message provided.'}`,
         imageNotice,
       ].join('\n'),
+    });
+
+    req.io.emit('newAlert', {
+      alert: alert.toObject(),
+      vehicleOwnerClerkId: vehicle.ownerClerkId,
     });
 
     res.status(201).json(alert);
