@@ -11,6 +11,11 @@ const alertSchema = new mongoose.Schema({
   message: {
     type: String,
   },
+  urgency: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'low',
+  },
   imageUrl: {
     type: String,
     default: '',

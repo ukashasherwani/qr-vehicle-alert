@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const streamifier = require('streamifier');
 const Alert = require('../models/Alert');
 const Vehicle = require('../models/Vehicle');
+const { analyzeUrgency } = require('../utils/aiHelper');
 
 const router = express.Router();
 const upload = multer({
@@ -64,11 +65,13 @@ router.post('/', upload.single('image'), async (req, res, next) => {
     }
 
     const imageUrl = req.file ? await uploadImage(req.file.buffer) : '';
+    const urgency = await analyzeUrgency(message);
 
     const alert = await Alert.create({
       vehicleId,
       issueType,
       message,
+      urgency,
       imageUrl,
     });
 
@@ -79,7 +82,7 @@ router.post('/', upload.single('image'), async (req, res, next) => {
     await transporter.sendMail({
       from: `"QR Vehicle Alert" <${process.env.SENDER_EMAIL}>`,
       to: recipientEmail,
-      subject: `Vehicle alert: ${issueType || 'New issue reported'}`,
+      subject: `${urgency === 'high' ? '[URGENT ALERT] ' : ''}Vehicle alert: ${issueType || 'New issue reported'}`,
       text: [
         `A new issue was reported for vehicle ${vehicle.plateNumber}.`,
         `Issue: ${issueType || 'Not specified'}`,

@@ -39,15 +39,28 @@ function PublicScan() {
   }, [vehicleId])
 
   const toggleIssue = (issue) => {
-    setSelectedIssues((current) => current.includes(issue)
-      ? current.filter((item) => item !== issue)
-      : [...current, issue])
+    if (issue === 'Custom') {
+      setSelectedIssues((current) => current.includes('Custom') ? [] : ['Custom'])
+      return
+    }
+
+    setSelectedIssues((current) => [
+      ...current.filter((item) => item !== 'Custom' && item !== issue),
+      ...(current.includes(issue) ? [] : [issue]),
+    ])
+    setMessage('')
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
     setSuccess(false)
+
+    if (selectedIssues.includes('Custom') && !message.trim()) {
+      setError('Please enter an additional message for a custom alert.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -113,8 +126,12 @@ function PublicScan() {
               </div>
             </fieldset>
 
-            <label className="mt-6 block text-sm font-semibold text-slate-700" htmlFor="message">Additional message</label>
-            <textarea id="message" rows="4" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Add helpful details for the owner..." className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+            {selectedIssues.includes('Custom') && (
+              <>
+                <label className="mt-6 block text-sm font-semibold text-slate-700" htmlFor="message">Additional message</label>
+                <textarea id="message" required rows="4" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Add helpful details for the owner..." className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+              </>
+            )}
 
             <label className="mt-6 block text-sm font-semibold text-slate-700" htmlFor="image">Photo evidence <span className="font-normal text-slate-500">(optional)</span></label>
             <input id="image" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} className="mt-2 block w-full cursor-pointer rounded-lg border border-slate-300 text-sm text-slate-600 file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2.5 file:font-semibold file:text-slate-700 hover:file:bg-cyan-50" />

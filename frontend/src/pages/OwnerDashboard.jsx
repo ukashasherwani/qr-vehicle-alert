@@ -19,6 +19,18 @@ function statusClasses(status) {
   return 'bg-rose-100 text-rose-700'
 }
 
+function urgencyClasses(urgency) {
+  if (urgency === 'high') {
+    return 'animate-pulse bg-rose-100 text-rose-700'
+  }
+
+  if (urgency === 'medium') {
+    return 'bg-amber-100 text-amber-700'
+  }
+
+  return 'bg-slate-100 text-slate-600'
+}
+
 function getAlertContent(alert) {
   const issueTypes = (alert.issueType || '')
     .split(',')
@@ -257,7 +269,10 @@ function OwnerDashboard() {
                       <p className="mt-2 text-xs text-slate-400">{alert.vehicleId?.plateNumber || 'Unknown vehicle'} · {new Date(alert.createdAt).toLocaleString()}</p>
                         {alert.imageUrl && <a href={alert.imageUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block"><img src={alert.imageUrl} alt="Alert evidence" className="h-20 w-20 rounded-lg object-cover ring-1 ring-slate-200 transition hover:opacity-80" /></a>}
                       </div>
-                      <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold capitalize ${statusClasses(alert.status)}`}>{alert.status || 'pending'}</span>
+                      <div className="flex w-fit shrink-0 flex-wrap gap-2">
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${urgencyClasses(alert.urgency)}`}>{alert.urgency || 'low'} urgency</span>
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${statusClasses(alert.status)}`}>{alert.status || 'pending'}</span>
+                      </div>
                     </article>
                   })()
                 ))}
