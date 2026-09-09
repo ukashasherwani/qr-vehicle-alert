@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const alertRoutes = require('./routes/alertRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 });
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'QR Vehicle Alert API is running' });
