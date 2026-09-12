@@ -1,0 +1,41 @@
+.admin-shell [class*="border-slate-"] {
+	border-color: rgb(255 255 255 / 10%) !important;
+}
+
+.admin-shell [class*="bg-slate-"] {
+	background-color: #121215 !important;
+}
+
+.admin-shell [class*="text-cyan-"],
+.admin-shell [class*="text-emerald-"],
+.admin-shell [class*="text-indigo-"],
+.admin-shell [class*="text-amber-"],
+.admin-shell [class*="text-rose-"] {
+	color: #ffffff !important;
+}
+
+.admin-shell [class*="bg-cyan-"],
+.admin-shell [class*="bg-emerald-"],
+.admin-shell [class*="bg-indigo-"],
+.admin-shell [class*="bg-amber-"],
+.admin-shell [class*="bg-rose-"] {
+	background-color: rgb(255 255 255 / 8%) !important;
+}
+
+.admin-shell [class*="hover:bg-slate-"]:hover,
+.admin-shell [class*="hover:bg-cyan-"]:hover {
+	background-color: rgb(255 255 255 / 12%) !important;
+}
+
+.admin-shell button,
+.admin-shell a,
+.admin-shell select {
+	cursor: pointer;
+	transition-property: color, background-color, border-color, opacity, transform;
+	transition-duration: 150ms;
+}
+
+.admin-shell button:active,
+.admin-shell a:active {
+	transform: scale(0.95);
+}

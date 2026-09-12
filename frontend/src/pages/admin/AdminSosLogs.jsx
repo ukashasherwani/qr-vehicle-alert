@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
+import { apiUrl } from '../../api/config'
 import { AlertTriangle, MapPin, RefreshCw, Calendar, Car } from 'lucide-react'
 
 export default function AdminSosLogs() {
@@ -14,7 +15,7 @@ export default function AdminSosLogs() {
     setError('')
     try {
       const token = await getToken()
-      const response = await fetch(`/api/admin/sos-logs?page=${page}&limit=12`, {
+      const response = await fetch(apiUrl(`/admin/sos-logs?page=${page}&limit=12`), {
         headers: { Authorization: `Bearer ${token}` },
       })
       const result = await response.json()

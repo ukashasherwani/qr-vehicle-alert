@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
+import { apiUrl } from '../../api/config'
+import { Link } from 'react-router-dom'
 import {
   Users,
   QrCode,
@@ -21,7 +23,7 @@ export default function AdminDashboard() {
     setError('')
     try {
       const token = await getToken()
-      const response = await fetch('/api/admin/stats', {
+      const response = await fetch(apiUrl('/admin/stats'), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -68,9 +70,9 @@ export default function AdminDashboard() {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Users */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <Link to="/admin/users" className="cursor-pointer rounded-2xl border border-white/10 bg-[#121215] p-5 transition-transform hover:-translate-y-1 active:scale-95">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-400">Registered Owners</span>
             <div className="rounded-lg bg-cyan-500/10 p-2 text-cyan-400">
@@ -84,10 +86,10 @@ export default function AdminDashboard() {
             <TrendingUp className="h-3 w-3" />
             <span>Active Vehicle Owners</span>
           </div>
-        </div>
+        </Link>
 
         {/* Active QR Codes */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <Link to="/admin/vehicles" className="cursor-pointer rounded-2xl border border-white/10 bg-[#121215] p-5 transition-transform hover:-translate-y-1 active:scale-95">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-400">Active QR Codes</span>
             <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">
@@ -101,10 +103,10 @@ export default function AdminDashboard() {
             <ShieldCheck className="h-3 w-3" />
             <span>Out of {stats?.totalVehicles ?? 0} total vehicles</span>
           </div>
-        </div>
+        </Link>
 
         {/* SOS Alerts Today */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <Link to="/admin/sos-logs" className="cursor-pointer rounded-2xl border border-white/10 bg-[#121215] p-5 transition-transform hover:-translate-y-1 active:scale-95">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-400">Emergency SOS Today</span>
             <div className="rounded-lg bg-rose-500/10 p-2 text-rose-400">
@@ -117,10 +119,10 @@ export default function AdminDashboard() {
           <div className="mt-2 flex items-center gap-1.5 text-[11px] text-rose-400 font-medium">
             <span>High Priority Emergencies</span>
           </div>
-        </div>
+        </Link>
 
         {/* Total Message Volume */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-sm">
+        <Link to="/admin/messages" className="cursor-pointer rounded-2xl border border-white/10 bg-[#121215] p-5 transition-transform hover:-translate-y-1 active:scale-95">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-400">Total Alerts Processed</span>
             <div className="rounded-lg bg-indigo-500/10 p-2 text-indigo-400">
@@ -133,44 +135,44 @@ export default function AdminDashboard() {
           <div className="mt-2 flex items-center gap-1.5 text-[11px] text-indigo-400 font-medium">
             <span>All Historical Reports</span>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* AI Tone Breakdown Section */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 backdrop-blur-sm">
+      <div className="rounded-2xl border border-white/10 bg-[#121215] p-6">
         <h3 className="text-base font-semibold text-white">AI Urgency & Tone Analysis Distribution</h3>
         <p className="mt-1 text-xs text-slate-400">
           AI sentiment classification analyzed through Google Gemini urgency engine.
         </p>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/admin/messages?urgency=low" className="cursor-pointer rounded-xl border border-white/10 bg-[#0a0a0c] p-4 transition-transform hover:-translate-y-1 active:scale-95">
             <span className="text-xs font-medium text-slate-400">Helpful / Low Urgency</span>
             <p className="mt-2 text-2xl font-bold text-emerald-400">
               {isLoading ? '...' : stats?.aiToneBreakdown?.Helpful ?? 0}
             </p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <Link to="/admin/messages?urgency=medium" className="cursor-pointer rounded-xl border border-white/10 bg-[#0a0a0c] p-4 transition-transform hover:-translate-y-1 active:scale-95">
             <span className="text-xs font-medium text-slate-400">Medium Caution Alert</span>
             <p className="mt-2 text-2xl font-bold text-amber-400">
               {isLoading ? '...' : stats?.aiToneBreakdown?.Alert ?? 0}
             </p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <Link to="/admin/messages?urgency=high" className="cursor-pointer rounded-xl border border-white/10 bg-[#0a0a0c] p-4 transition-transform hover:-translate-y-1 active:scale-95">
             <span className="text-xs font-medium text-slate-400">Urgent Emergency</span>
             <p className="mt-2 text-2xl font-bold text-rose-400">
               {isLoading ? '...' : stats?.aiToneBreakdown?.Urgent ?? 0}
             </p>
-          </div>
+          </Link>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
+          <Link to="/admin/messages?status=spam" className="cursor-pointer rounded-xl border border-white/10 bg-[#0a0a0c] p-4 transition-transform hover:-translate-y-1 active:scale-95">
             <span className="text-xs font-medium text-slate-400">Blocked / Flagged Spam</span>
             <p className="mt-2 text-2xl font-bold text-slate-400">
               {isLoading ? '...' : stats?.aiToneBreakdown?.Spam ?? 0}
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

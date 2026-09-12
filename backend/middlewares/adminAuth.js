@@ -92,7 +92,10 @@ const adminAuth = async (req, res, next) => {
     const userId = decoded.sub || decoded.userId || decoded.id;
     const roleFromJwt =
       decoded.publicMetadata?.role ||
+      decoded.public_metadata?.role ||
       decoded.metadata?.role ||
+      decoded.privateMetadata?.role ||
+      decoded.private_metadata?.role ||
       decoded.role ||
       decoded['https://clerk.dev/role'];
 

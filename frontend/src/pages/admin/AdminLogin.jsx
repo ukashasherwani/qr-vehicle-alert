@@ -16,7 +16,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-slate-950 px-4 py-12 text-slate-100 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col justify-center bg-[#0a0a0c] px-4 py-12 text-white sm:px-6 lg:px-8">
       {/* Background Glow Effect */}
       <div className="pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden">
         <div className="h-[400px] w-[500px] rounded-full bg-cyan-600/10 blur-[120px]" />
@@ -25,31 +25,31 @@ export default function AdminLogin() {
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
         {/* Header Branding */}
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-500/20">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white">
             <ShieldCheck className="h-8 w-8" />
           </div>
           <h2 className="mt-4 text-2xl font-bold tracking-tight text-white">
             Admin Control Center
           </h2>
-          <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-white/50">
             Secure QR Vehicle Alert Management Portal
           </p>
         </div>
 
         {/* If signed in as non-admin, notify user */}
         {isLoaded && isSignedIn && user?.publicMetadata?.role !== 'admin' && (
-          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200">
+          <div className="mb-6 rounded-xl border border-white/15 bg-white/5 p-4 text-white/80">
             <div className="flex items-start gap-3">
-              <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
+              <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-white" />
               <div className="text-xs">
-                <p className="font-semibold text-amber-300">Non-Admin Account Detected</p>
+                <p className="font-semibold text-white">Non-Admin Account Detected</p>
                 <p className="mt-1">
                   You are signed in as <span className="font-medium">{user.primaryEmailAddress?.emailAddress}</span> which lacks admin permissions.
                 </p>
                 <button
                   type="button"
                   onClick={() => signOut()}
-                  className="mt-2 text-xs font-semibold text-cyan-400 underline hover:text-cyan-300"
+                  className="mt-2 text-xs font-semibold text-white underline hover:text-white/70"
                 >
                   Sign out to switch to Admin account
                 </button>
@@ -66,21 +66,21 @@ export default function AdminLogin() {
             fallbackRedirectUrl="/admin"
             appearance={{
               variables: {
-                colorPrimary: '#06b6d4', // Cyan 500
+                colorPrimary: '#ffffff',
                 colorBackground: '#0f172a', // Slate 900
                 colorText: '#f8fafc',
-                colorTextSecondary: '#94a3b8',
+                colorTextSecondary: '#a1a1aa',
                 colorInputBackground: '#020617', // Slate 950
                 colorInputText: '#ffffff',
                 borderRadius: '0.75rem',
               },
               elements: {
-                card: 'border border-slate-800 shadow-2xl bg-slate-900/90 backdrop-blur-xl',
+                card: 'border border-white/10 shadow-2xl bg-[#121215]',
                 headerTitle: 'text-slate-100',
                 headerSubtitle: 'text-slate-400',
-                formButtonPrimary: 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold',
-                footerActionText: 'text-slate-400',
-                footerActionLink: 'text-cyan-400 hover:text-cyan-300',
+                formButtonPrimary: 'bg-white hover:bg-white/85 text-black font-semibold',
+                footerActionText: 'text-white/50',
+                footerActionLink: 'text-white hover:text-white/70',
               },
             }}
           />
@@ -90,7 +90,7 @@ export default function AdminLogin() {
         <div className="mt-8 text-center">
           <a
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-300"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50 transition hover:text-white"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Public Portal

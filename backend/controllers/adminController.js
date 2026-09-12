@@ -1,6 +1,29 @@
 const mongoose = require('mongoose');
+const https = require('https');
 const Vehicle = require('../models/Vehicle');
 const Alert = require('../models/Alert');
+
+const getClerkProfile = (userId) => new Promise((resolve) => {
+  if (!process.env.CLERK_SECRET_KEY || !userId) return resolve(null);
+  const request = https.request({
+    hostname: 'api.clerk.com',
+    path: `/v1/users/${userId}`,
+    headers: { Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}` },
+  }, (response) => {
+    let data = '';
+    response.on('data', (chunk) => { data += chunk; });
+    response.on('end', () => {
+      try {
+        const profile = JSON.parse(data);
+        resolve(response.statusCode >= 200 && response.statusCode < 300 ? profile : null);
+      } catch {
+        resolve(null);
+      }
+    });
+  });
+  request.on('error', () => resolve(null));
+  request.end();
+});
 
 /**
  * Controller: Admin Portal Management
@@ -25,7 +48,7 @@ const getStats = async (req, res, next) => {
     // In current schema, vehicles with qrCodeUrl or without explicit deactivated status are active
     const activeQrCodes = await Vehicle.countDocuments({
       $or: [
-        { qrStatus: { $ne: 'deactivated' } },
+        { qrStatus: { $ne: 'INACTIVE' } },
         { qrStatus: { $exists: false } },
       ],
     });
@@ -120,6 +143,7 @@ const getUsers = async (req, res, next) => {
         $group: {
           _id: '$ownerClerkId',
           email: { $first: '$ownerEmail' },
+          phoneNumber: { $first: { $ifNull: ['$ownerPhone', '$phoneNumber'] } },
           vehiclesCount: { $sum: 1 },
           vehicles: {
             $push: {
@@ -133,6 +157,16 @@ const getUsers = async (req, res, next) => {
           createdAt: { $first: '$createdAt' },
         },
       },
+      {
+        $lookup: {
+          from: 'alerts',
+          localField: 'vehicles._id',
+          foreignField: 'vehicleId',
+          as: 'alerts',
+        },
+      },
+      { $addFields: { alertsReceived: { $size: '$alerts' } } },
+      { $project: { alerts: 0 } },
     ];
 
     if (statusFilter !== 'all') {
@@ -154,10 +188,13 @@ const getUsers = async (req, res, next) => {
           id: u._id || 'unassigned',
           clerkId: u._id,
           email: u.email || 'N/A',
+          phoneNumber: u.phoneNumber || 'N/A',
           role: 'owner',
           status: u.status || 'active',
           vehiclesCount: u.vehiclesCount,
           vehicles: u.vehicles,
+          alertsReceived: u.alertsReceived || 0,
+          joinedAt: u.createdAt || null,
         })),
         pagination: {
           total: totalUsers,
@@ -172,6 +209,38 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const getUserDetails = async (req, res, next) => {
+  try {
+    const vehicles = await Vehicle.find({ ownerClerkId: req.params.id })
+      .select('plateNumber model ownerPhone phoneNumber ownerEmail qrStatus')
+      .lean();
+    if (vehicles.length === 0) {
+      return res.status(404).json({ success: false, message: 'User details not found' });
+    }
+
+    const alerts = await Alert.find({ vehicleId: { $in: vehicles.map((vehicle) => vehicle._id) } })
+      .select('vehicleId issueType message urgency status createdAt')
+      .populate('vehicleId', 'plateNumber')
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+    const clerkProfile = await getClerkProfile(req.params.id);
+
+    res.json({
+      success: true,
+      data: {
+        email: vehicles[0].ownerEmail || 'N/A',
+        phoneNumber: vehicles[0].ownerPhone || vehicles[0].phoneNumber || 'N/A',
+        profileImageUrl: clerkProfile?.image_url || null,
+        vehicles,
+        alerts,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // 3. PATCH /api/admin/users/:id/status
 // Block / Unblock or Activate / Suspend a user account
 const updateUserStatus = async (req, res, next) => {
@@ -179,7 +248,7 @@ const updateUserStatus = async (req, res, next) => {
     const { id } = req.params; // Clerk User ID or Owner ID
     const { status } = req.body; // 'active', 'suspended', 'blocked'
 
-    const validStatuses = ['active', 'suspended', 'blocked'];
+    const validStatuses = ['active', 'suspended', 'blocked', 'flagged'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
@@ -214,29 +283,40 @@ const getVehicles = async (req, res, next) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 10);
     const search = req.query.search ? req.query.search.trim() : '';
-    const qrStatus = req.query.qrStatus;
+    const qrStatus = req.query.qrStatus ? String(req.query.qrStatus).toUpperCase() : '';
+    const owner = req.query.owner ? req.query.owner.trim() : '';
 
     const query = {};
+    const filters = [];
+    if (owner) {
+      filters.push({ $or: [
+        { ownerClerkId: owner },
+        { ownerEmail: owner },
+      ] });
+    }
     if (search) {
-      query.$or = [
+      filters.push({ $or: [
         { plateNumber: { $regex: search, $options: 'i' } },
         { model: { $regex: search, $options: 'i' } },
         { ownerEmail: { $regex: search, $options: 'i' } },
-      ];
+      ] });
     }
-    if (qrStatus && qrStatus !== 'all') {
-      if (qrStatus === 'active') {
-        query.$or = [
+    if (qrStatus && qrStatus !== 'ALL') {
+      if (qrStatus === 'ACTIVE') {
+        filters.push({ $or: [
+          { qrStatus: 'ACTIVE' },
           { qrStatus: 'active' },
           { qrStatus: { $exists: false } },
-        ];
+        ] });
       } else {
-        query.qrStatus = qrStatus;
+        query.qrStatus = { $in: [qrStatus, qrStatus.toLowerCase()] };
       }
     }
+    if (filters.length > 0) query.$and = filters;
 
     const total = await Vehicle.countDocuments(query);
     const vehicles = await Vehicle.find(query)
+      .select('+phoneNumber')
       .sort({ _id: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -256,8 +336,10 @@ const getVehicles = async (req, res, next) => {
 
     const formattedVehicles = vehicles.map((v) => ({
       ...v,
-      qrStatus: v.qrStatus || 'active',
-      totalAlerts: countMap[v._id.toString()] || 0,
+      qrStatus: String(v.qrStatus || 'ACTIVE').toUpperCase(),
+      totalAlerts: countMap[v._id.toString()] || v.alertCount || 0,
+      alertCount: v.alertCount ?? countMap[v._id.toString()] ?? 0,
+      ownerPhone: v.ownerPhone || v.phoneNumber || 'N/A',
     }));
 
     res.json({
@@ -282,13 +364,13 @@ const getVehicles = async (req, res, next) => {
 const updateVehicleQrStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { qrStatus } = req.body; // 'active', 'deactivated', 'regenerated'
+    const qrStatus = String(req.body.qrStatus || '').toUpperCase();
 
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({ success: false, message: 'Invalid vehicle ID' });
     }
 
-    const validStatuses = ['active', 'deactivated', 'regenerated'];
+    const validStatuses = ['ACTIVE', 'INACTIVE', 'REGENERATED'];
     if (!validStatuses.includes(qrStatus)) {
       return res.status(400).json({
         success: false,
@@ -299,8 +381,8 @@ const updateVehicleQrStatus = async (req, res, next) => {
     const updateFields = { qrStatus };
 
     // If regenerating, update timestamp / QR url to invalidate old caches
-    if (qrStatus === 'regenerated' || qrStatus === 'active') {
-      updateFields.qrStatus = 'active';
+    if (qrStatus === 'REGENERATED' || qrStatus === 'ACTIVE') {
+      updateFields.qrStatus = 'ACTIVE';
       updateFields.qrGeneratedAt = new Date();
     }
 
@@ -319,6 +401,32 @@ const updateVehicleQrStatus = async (req, res, next) => {
       message: `QR code status updated to '${qrStatus}'.`,
       data: vehicle,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteVehicle = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid vehicle ID' });
+    }
+    const vehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    if (!vehicle) return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    await Alert.deleteMany({ vehicleId: req.params.id });
+    res.json({ success: true, message: 'Vehicle and associated alerts deleted.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const flagUser = async (req, res, next) => {
+  try {
+    const result = await Vehicle.updateMany(
+      { ownerClerkId: req.params.id },
+      { $set: { userStatus: 'flagged' } },
+    );
+    res.json({ success: true, message: 'Owner flagged.', data: { affectedVehicles: result.modifiedCount } });
   } catch (error) {
     next(error);
   }
@@ -391,6 +499,7 @@ const getMessageLogs = async (req, res, next) => {
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 15);
     const urgency = req.query.urgency;
     const status = req.query.status;
+    const plate = req.query.plate ? req.query.plate.trim() : '';
     const search = req.query.search ? req.query.search.trim() : '';
 
     const query = {};
@@ -408,6 +517,11 @@ const getMessageLogs = async (req, res, next) => {
         { message: { $regex: search, $options: 'i' } },
         { issueType: { $regex: search, $options: 'i' } },
       ];
+    }
+
+    if (plate) {
+      const matchingVehicles = await Vehicle.find({ plateNumber: { $regex: plate, $options: 'i' } }).select('_id');
+      query.vehicleId = { $in: matchingVehicles.map((vehicle) => vehicle._id) };
     }
 
     const total = await Alert.countDocuments(query);
@@ -462,9 +576,12 @@ const getMessageLogs = async (req, res, next) => {
 module.exports = {
   getStats,
   getUsers,
+  getUserDetails,
   updateUserStatus,
   getVehicles,
   updateVehicleQrStatus,
+  deleteVehicle,
+  flagUser,
   getSosLogs,
   getMessageLogs,
 };

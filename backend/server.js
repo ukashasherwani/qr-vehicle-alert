@@ -8,21 +8,25 @@ const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
+const { getMongoUri, validateEnvironment } = require('./config/env');
 const alertRoutes = require('./routes/alertRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 const io = new Server(httpServer, {
   cors: {
-    origin: true,
+    origin: clientUrl,
     methods: ['GET', 'POST'],
   },
 });
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+validateEnvironment();
+
+app.use(cors({ origin: clientUrl }));
 app.use(express.json());
 app.use((req, res, next) => {
   req.io = io;
@@ -45,7 +49,7 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(getMongoUri());
     httpServer.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });
