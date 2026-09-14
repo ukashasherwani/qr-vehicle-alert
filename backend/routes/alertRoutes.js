@@ -143,7 +143,7 @@ router.post('/', alertRateLimiter, upload.single('image'), async (req, res, next
     }
 
     const imageUrl = req.file ? await uploadImage(req.file.buffer) : '';
-    const urgency = await analyzeUrgency(message);
+    const urgency = /sos|emergency/i.test(issueType) ? 'high' : await analyzeUrgency(message);
 
     const alert = await Alert.create({
       vehicleId,

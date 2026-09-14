@@ -3,7 +3,7 @@ import { AlertTriangle, Check, LoaderCircle, Send, ShieldCheck } from 'lucide-re
 import { useParams } from 'react-router-dom'
 import { apiUrl } from '../api/config'
 
-const ISSUE_TYPES = ['Path Blocked', 'Lights On', 'Window Open', 'Custom']
+const ISSUE_TYPES = ['SOS Emergency', 'Path Blocked', 'Lights On', 'Window Open', 'Custom']
 
 function PublicScan() {
   const { vehicleId } = useParams()
