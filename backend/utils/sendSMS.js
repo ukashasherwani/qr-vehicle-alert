@@ -5,10 +5,10 @@ const twilioClient = twilio(
   process.env.TWILIO_AUTH_TOKEN,
 );
 
-async function sendAlertSMS({ to, vehiclePlate, issue, urgencyLevel }) {
+async function sendAlertSMS({ to, vehiclePlate, issue, urgencyLevel, message: customMessage }) {
   try {
     const message = await twilioClient.messages.create({
-      body: [
+      body: customMessage || [
         `QR Vehicle Alert for ${vehiclePlate}: ${issue || 'New issue reported'}`,
         `Urgency: ${urgencyLevel || 'low'}. Please check your vehicle.`,
       ].join(' '),

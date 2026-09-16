@@ -8,6 +8,11 @@ const alertSchema = new mongoose.Schema({
   issueType: {
     type: String,
   },
+  alertType: {
+    type: String,
+    enum: ['STANDARD', 'CRITICAL_SOS'],
+    default: 'STANDARD',
+  },
   message: {
     type: String,
   },
@@ -23,6 +28,10 @@ const alertSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'pending',
+  },
+  coordinates: {
+    latitude: { type: Number },
+    longitude: { type: Number },
   },
   createdAt: {
     type: Date,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, Check, LoaderCircle, Send, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, Check, LoaderCircle, Send, ShieldCheck, Siren, X } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { apiUrl } from '../api/config'
 
@@ -15,6 +15,10 @@ function PublicScan() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [showSosConfirm, setShowSosConfirm] = useState(false)
+  const [sosNote, setSosNote] = useState('')
+  const [sosFeedback, setSosFeedback] = useState('')
+  const [isSosSubmitting, setIsSosSubmitting] = useState(false)
 
   const imagePreviewUrl = useMemo(() => (image ? URL.createObjectURL(image) : ''), [image])
 
@@ -96,6 +100,58 @@ function PublicScan() {
     }
   }
 
+  const triggerSos = () => {
+    setSosFeedback('')
+    if (!navigator.geolocation) {
+      setShowSosConfirm(true)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      () => setShowSosConfirm(true),
+      () => setShowSosConfirm(true),
+      { enableHighAccuracy: true, timeout: 8000 },
+    )
+  }
+
+  const confirmSos = () => {
+    setIsSosSubmitting(true)
+    setSosFeedback('Emergency dispatch triggered!')
+    setShowSosConfirm(false)
+
+    const submitSos = (location = {}) => fetch(apiUrl('/sos/trigger'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vehicleId,
+        vehiclePlate: vehicle.plateNumber,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        userNote: sosNote,
+      }),
+    }).then(async (response) => {
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(result.message || 'Unable to trigger emergency SOS.')
+    })
+
+    const onFailure = (sosError) => {
+      setSosFeedback(sosError.message)
+      setIsSosSubmitting(false)
+    }
+    const onSuccess = () => {
+      setSosNote('')
+      setIsSosSubmitting(false)
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => submitSos({ latitude: position.coords.latitude, longitude: position.coords.longitude }).then(onSuccess).catch(onFailure),
+        () => submitSos().then(onSuccess).catch(onFailure),
+        { enableHighAccuracy: true, timeout: 8000 },
+      )
+    } else {
+      submitSos().then(onSuccess).catch(onFailure)
+    }
+  }
+
   if (isLoading) {
     return <div className="flex min-h-[calc(100vh-81px)] items-center justify-center gap-2 bg-slate-950 text-slate-300"><LoaderCircle className="animate-spin" size={20} /> Loading vehicle...</div>
   }
@@ -125,6 +181,21 @@ function PublicScan() {
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.18em] text-white/50">Vehicle contact</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">{vehicle.plateNumber}</h1>
           <p className="mt-2 text-white/60">{vehicle.model || 'Vehicle model not provided'}</p>
+
+          <section className="mt-7 rounded-2xl border border-red-400/25 bg-red-500/10 p-4 shadow-[0_0_32px_rgba(239,68,68,0.12)] backdrop-blur-xl">
+            <div className="flex items-start gap-3">
+              <Siren className="mt-0.5 shrink-0 text-red-300" size={21} />
+              <div className="min-w-0">
+                <h2 className="font-bold text-red-100">Emergency assistance</h2>
+                <p className="mt-1 text-xs leading-5 text-red-100/65">Use this only when immediate action is required for this vehicle.</p>
+              </div>
+            </div>
+            <button type="button" onClick={triggerSos} disabled={isSosSubmitting} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-300/40 bg-red-500/25 px-4 py-3 text-sm font-black tracking-wide text-red-50 shadow-[0_0_22px_rgba(239,68,68,0.2)] transition hover:bg-red-500/40 disabled:cursor-wait disabled:opacity-60">
+              <Siren size={18} />
+              {isSosSubmitting ? 'DISPATCHING...' : 'TRIGGER EMERGENCY SOS'}
+            </button>
+            {sosFeedback && <p className={`mt-3 text-center text-xs font-semibold ${sosFeedback === 'Emergency dispatch triggered!' ? 'text-emerald-300' : 'text-red-200'}`}>{sosFeedback}</p>}
+          </section>
 
           <div className="my-8 h-px bg-slate-200" />
           <h2 className="text-xl font-bold text-white">Report an issue</h2>
@@ -164,6 +235,22 @@ function PublicScan() {
           </form>
         </section>
       </div>
+      {showSosConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-labelledby="sos-title" className="w-full max-w-sm rounded-2xl border border-red-300/30 bg-[#191114] p-6 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div><Siren className="text-red-300" size={24} /><h2 id="sos-title" className="mt-3 text-xl font-bold">Trigger emergency SOS?</h2></div>
+              <button type="button" aria-label="Close confirmation" onClick={() => setShowSosConfirm(false)} className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X size={18} /></button>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-white/65">The vehicle owner and emergency admin team will be alerted immediately. Your location will be shared when available.</p>
+            <textarea value={sosNote} onChange={(event) => setSosNote(event.target.value)} rows="3" maxLength="500" placeholder="Optional details" className="mt-4 w-full resize-none rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-red-300/50" />
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => setShowSosConfirm(false)} className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white/70 hover:bg-white/10">Cancel</button>
+              <button type="button" onClick={confirmSos} className="rounded-xl bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-400">Confirm SOS</button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

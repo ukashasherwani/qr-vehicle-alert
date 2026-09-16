@@ -12,6 +12,7 @@ const { getMongoUri, validateEnvironment } = require('./config/env');
 const alertRoutes = require('./routes/alertRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const sosRoutes = require('./routes/sosRoutes');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 });
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/sos', sosRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {

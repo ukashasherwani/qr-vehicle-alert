@@ -15,13 +15,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendAlertEmail({ to, phoneNumber, vehiclePlate, issues, customMessage, urgencyLevel, imageUrl }) {
+async function sendAlertEmail({ to, phoneNumber, vehiclePlate, issues, customMessage, urgencyLevel, imageUrl, subject: customSubject }) {
   if (!to) {
     throw new Error('Alert email recipient is missing.');
   }
 
   const urgencyLabel = urgencyLevel || 'low';
-  const subject = `${urgencyLabel === 'high' ? '[URGENT ALERT] ' : ''}Vehicle alert: ${issues || 'New issue reported'}`;
+  const subject = customSubject || `${urgencyLabel === 'high' ? '[URGENT ALERT] ' : ''}Vehicle alert: ${issues || 'New issue reported'}`;
   const imageNotice = imageUrl ? `\nImage evidence: ${imageUrl}` : '';
 
   console.log('[Email] Sending alert email', {

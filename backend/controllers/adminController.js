@@ -453,7 +453,7 @@ const getSosLogs = async (req, res, next) => {
 
     const total = await Alert.countDocuments(query);
     const logs = await Alert.find(query)
-      .populate('vehicleId', 'plateNumber model ownerEmail ownerClerkId')
+      .populate('vehicleId', 'plateNumber model ownerEmail ownerPhone ownerClerkId')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -471,6 +471,8 @@ const getSosLogs = async (req, res, next) => {
         latitude: log.latitude || null,
         longitude: log.longitude || null,
       },
+      ownerPhone: log.vehicleId?.ownerPhone || '',
+      ownerEmail: log.vehicleId?.ownerEmail || '',
       createdAt: log.createdAt,
     }));
 
