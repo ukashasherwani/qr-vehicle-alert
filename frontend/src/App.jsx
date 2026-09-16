@@ -14,6 +14,10 @@ import AdminSosLogs from './pages/admin/AdminSosLogs'
 import AdminMessages from './pages/admin/AdminMessages'
 import './App.css'
 
+const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  ?.trim()
+  .replace(/^['"]|['"]$/g, '')
+
 /**
  * Public Layout Component
  * Renders the main public navbar and pages (Home, Owner Dashboard, Public Scan).
@@ -32,7 +36,7 @@ function PublicLayout() {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={clerkPublishableKey}>
       <BrowserRouter>
         <Routes>
           {/* Public & Vehicle Owner Routes */}
