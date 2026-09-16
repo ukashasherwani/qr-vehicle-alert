@@ -3,7 +3,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { AlertCircle, CarFront, Check, Plus, QrCode, RefreshCw } from 'lucide-react'
 import { QRCodeCanvas } from 'qrcode.react'
 import { io } from 'socket.io-client'
-import { apiUrl, socketUrl } from '../api/config'
+import { apiUrl, BACKEND_URL } from '../api/config'
 
 function statusClasses(status) {
   if (status === 'resolved') {
@@ -120,7 +120,7 @@ function OwnerDashboard() {
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return undefined
 
-    const socket = io(socketUrl)
+    const socket = io(BACKEND_URL)
     const handleNewAlert = ({ alert, vehicleOwnerClerkId }) => {
       if (vehicleOwnerClerkId !== user.id || !alert) return
 

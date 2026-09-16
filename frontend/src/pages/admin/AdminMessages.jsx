@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
-import { apiUrl } from '../../api/config'
-import { socketUrl } from '../../api/config'
+import { apiUrl, BACKEND_URL } from '../../api/config'
 import { Search, Sparkles, MessageSquare, RefreshCw, Car, Check, Trash2, WandSparkles } from 'lucide-react'
 import { io } from 'socket.io-client'
 import { useSearchParams } from 'react-router-dom'
@@ -79,7 +78,7 @@ export default function AdminMessages() {
   }
 
   useEffect(() => {
-    const socket = io(socketUrl)
+    const socket = io(BACKEND_URL)
     const handleAlertUpdated = ({ alert }) => mergeAlert(alert)
     const handleAlertDeleted = ({ alertId }) => {
       setMessages((currentMessages) => currentMessages.filter((message) => String(message.id) !== String(alertId)))

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
-import { apiUrl } from '../../api/config'
-import { socketUrl } from '../../api/config'
+import { apiUrl, BACKEND_URL } from '../../api/config'
 import { io } from 'socket.io-client'
 import { AlertTriangle, MapPin, RefreshCw, Calendar, Car, Check, X } from 'lucide-react'
 
@@ -38,7 +37,7 @@ export default function AdminSosLogs() {
   }, [])
 
   useEffect(() => {
-    const socket = io(socketUrl)
+    const socket = io(BACKEND_URL)
     const handleNewSos = ({ alert }) => {
       const nextLog = {
         id: alert._id,
