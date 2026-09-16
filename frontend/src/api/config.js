@@ -1,7 +1,4 @@
-const configuredBackendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
-const backendUrl = /^https?:\/\//.test(configuredBackendUrl)
-  ? configuredBackendUrl.replace(/\/$/, '')
-  : 'http://localhost:5000'
+const backendUrl = import.meta.env.VITE_BACKEND_URL.replace(/\/$/, '')
 const API_BASE_URL = `${backendUrl}/api`
 
 export function apiUrl(path) {
