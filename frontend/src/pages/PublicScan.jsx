@@ -18,6 +18,7 @@ function PublicScan() {
   const [showSosConfirm, setShowSosConfirm] = useState(false)
   const [sosNote, setSosNote] = useState('')
   const [sosFeedback, setSosFeedback] = useState('')
+  // ukasha
   const [isSosSubmitting, setIsSosSubmitting] = useState(false)
 
   const imagePreviewUrl = useMemo(() => (image ? URL.createObjectURL(image) : ''), [image])
