@@ -153,61 +153,98 @@ function PublicScan() {
   }
 
   if (isLoading) {
-    return <div className="flex min-h-[calc(100vh-81px)] items-center justify-center gap-2 bg-slate-950 text-slate-300"><LoaderCircle className="animate-spin" size={20} /> Loading vehicle...</div>
+    return (
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center gap-3 bg-[#63666A] text-white">
+        <LoaderCircle className="animate-spin text-[#8686AC]" size={22} />
+        <span>Loading vehicle details...</span>
+      </div>
+    )
   }
 
   if (!vehicle) {
-    return <div className="mx-auto max-w-xl px-6 py-20 text-center text-white"><AlertTriangle className="mx-auto text-[#ef4444]" size={32} /><h1 className="mt-4 text-2xl font-bold">Vehicle unavailable</h1><p className="mt-2 text-white/60">{error}</p></div>
+    return (
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#63666A] px-6 py-20 text-center text-white">
+        <div className="glass-card rounded-2xl p-8 max-w-md border border-[#505081]/40 bg-[#0F0E47] text-white">
+          <AlertTriangle className="mx-auto text-[#8686AC]" size={36} />
+          <h1 className="mt-4 text-2xl font-bold text-white">Vehicle Unavailable</h1>
+          <p className="mt-2 text-sm text-[#8686AC]">{error || 'This QR decal is not linked to an active vehicle.'}</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <main className="min-h-[calc(100vh-81px)] bg-[#0a0a0c] px-4 py-10 text-white sm:px-6">
+    <main className="min-h-[calc(100vh-81px)] bg-[#63666A] px-4 py-10 text-white sm:px-6 selection:bg-[#0F0E47] selection:text-white">
       <div className="mx-auto max-w-xl">
-        <section className="glass-card animate-rise-in rounded-2xl p-6 sm:p-8">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5">
+        <section className="glass-card animate-rise-in rounded-3xl p-6 sm:p-8 border border-[#505081]/35 bg-[#0F0E47] shadow-[0_24px_60px_rgba(15,14,71,0.35)] text-white">
+          <div className="rounded-2xl border border-[#505081]/30 bg-[#272757] p-4 sm:p-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/10 text-white">
-                <ShieldCheck size={21} aria-hidden="true" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F0E47] border border-[#505081]/50 text-white shadow-[0_0_12px_rgba(80,80,129,0.3)]">
+                <ShieldCheck size={22} aria-hidden="true" />
               </div>
               <div>
-                <h1 className="text-lg font-bold tracking-tight text-white sm:text-xl">QR Vehicle Alert Service</h1>
-                <p className="mt-1.5 text-sm leading-6 text-white/60">
+                <h1 className="text-base font-bold tracking-tight text-white sm:text-lg">QR Vehicle Alert Service</h1>
+                <p className="mt-1 text-xs leading-relaxed text-[#8686AC]">
                   You are notifying the vehicle owner privately and securely. Select an issue below or type a custom message. No account required, and the owner will be notified instantly.
                 </p>
               </div>
             </div>
           </div>
 
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.18em] text-white/50">Vehicle contact</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">{vehicle.plateNumber}</h1>
-          <p className="mt-2 text-white/60">{vehicle.model || 'Vehicle model not provided'}</p>
+          <div className="mt-6 border-b border-[#505081]/25 pb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8686AC]">Vehicle contact</p>
+            <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white">{vehicle.plateNumber}</h1>
+            <p className="mt-1 text-sm text-[#8686AC]">{vehicle.model || 'Vehicle model not provided'}</p>
+          </div>
 
-          <section className="mt-7 rounded-2xl border border-red-400/25 bg-red-500/10 p-4 shadow-[0_0_32px_rgba(239,68,68,0.12)] backdrop-blur-xl">
+          {/* Emergency Assistance Callout */}
+          <section className="mt-6 rounded-2xl border border-[#505081]/50 bg-[#272757] p-4 shadow-[0_0_24px_rgba(80,80,129,0.15)]">
             <div className="flex items-start gap-3">
-              <Siren className="mt-0.5 shrink-0 text-red-300" size={21} />
+              <Siren className="mt-0.5 shrink-0 text-[#8686AC]" size={22} />
               <div className="min-w-0">
-                <h2 className="font-bold text-red-100">Emergency assistance</h2>
-                <p className="mt-1 text-xs leading-5 text-red-100/65">Use this only when immediate action is required for this vehicle.</p>
+                <h2 className="font-bold text-white">Emergency Assistance</h2>
+                <p className="mt-0.5 text-xs leading-5 text-[#8686AC]">Use this only when immediate urgent action is required for this vehicle.</p>
               </div>
             </div>
-            <button type="button" onClick={triggerSos} disabled={isSosSubmitting} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-300/40 bg-red-500/25 px-4 py-3 text-sm font-black tracking-wide text-red-50 shadow-[0_0_22px_rgba(239,68,68,0.2)] transition hover:bg-red-500/40 disabled:cursor-wait disabled:opacity-60">
+            <button
+              type="button"
+              onClick={triggerSos}
+              disabled={isSosSubmitting}
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#8686AC]/40 bg-[#0F0E47] px-4 py-3 text-sm font-bold tracking-wide text-white shadow-[0_0_20px_rgba(15,14,71,0.4)] transition hover:bg-[#272757] disabled:cursor-wait disabled:opacity-60"
+            >
               <Siren size={18} />
               {isSosSubmitting ? 'DISPATCHING...' : 'TRIGGER EMERGENCY SOS'}
             </button>
-            {sosFeedback && <p className={`mt-3 text-center text-xs font-semibold ${sosFeedback === 'Emergency dispatch triggered!' ? 'text-emerald-300' : 'text-red-200'}`}>{sosFeedback}</p>}
+            {sosFeedback && (
+              <p className={`mt-3 text-center text-xs font-semibold ${sosFeedback === 'Emergency dispatch triggered!' ? 'text-emerald-400' : 'text-rose-300'}`}>
+                {sosFeedback}
+              </p>
+            )}
           </section>
 
-          <div className="my-8 h-px bg-slate-200" />
-          <h2 className="text-xl font-bold text-white">Report an issue</h2>
-          <p className="mt-2 text-sm text-white/60">Select everything that applies. The owner will be notified privately.</p>
+          <div className="my-7 h-px bg-[#505081]/25" />
+          <h2 className="text-lg font-bold text-white">Report an Issue</h2>
+          <p className="mt-1 text-xs text-[#8686AC]">Select everything that applies. The owner will be notified privately.</p>
 
-          <form onSubmit={handleSubmit} className="mt-6 pb-6">
+          <form onSubmit={handleSubmit} className="mt-5 pb-2">
             <fieldset>
-              <legend className="text-sm font-semibold text-white/80">What needs attention?</legend>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <legend className="text-xs font-semibold text-[#8686AC]">What needs attention?</legend>
+              <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
                 {ISSUE_TYPES.map((issue) => (
-                  <label key={issue} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border p-3 text-sm font-medium transition hover:border-white/30 ${selectedIssues.includes(issue) ? 'border-white/40 bg-white/10 text-white' : 'border-white/10 text-white/70'}`}>
-                    <input type="checkbox" checked={selectedIssues.includes(issue)} onChange={() => toggleIssue(issue)} className="h-4 w-4 accent-white" />
+                  <label
+                    key={issue}
+                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border p-3 text-xs font-semibold transition hover:border-[#8686AC] ${
+                      selectedIssues.includes(issue)
+                        ? 'border-[#8686AC] bg-[#272757] text-white shadow-[0_0_12px_rgba(134,134,172,0.25)]'
+                        : 'border-[#505081]/35 bg-[#0F0E47] text-[#8686AC]'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIssues.includes(issue)}
+                      onChange={() => toggleIssue(issue)}
+                      className="h-4 w-4 accent-[#505081]"
+                    />
                     {issue}
                   </label>
                 ))}
@@ -216,37 +253,104 @@ function PublicScan() {
 
             {selectedIssues.includes('Custom') && (
               <>
-                <label className="mt-6 block text-sm font-semibold text-white/80" htmlFor="message">Additional message</label>
-                <textarea id="message" required rows="4" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Add helpful details for the owner..." className="mt-2 mb-2 min-h-32 w-full resize-y rounded-xl border border-white/10 bg-white/5 px-3 py-3 pb-4 text-base text-white outline-none placeholder:text-white/30 focus:border-white/40 focus:ring-1 focus:ring-white/50" />
+                <label className="mt-5 block text-xs font-semibold text-[#8686AC]" htmlFor="message">
+                  Additional Message Details
+                </label>
+                <textarea
+                  id="message"
+                  required
+                  rows="4"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  placeholder="Add helpful details for the owner..."
+                  className="mt-1.5 mb-2 min-h-28 w-full resize-y rounded-xl border border-[#505081]/40 bg-[#272757] p-3 text-sm text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC] focus:ring-1 focus:ring-[#8686AC]"
+                />
               </>
             )}
 
-            <label className="mt-6 block text-sm font-semibold text-white/80" htmlFor="image">Photo evidence <span className="font-normal text-white/40">(optional)</span></label>
-            <input id="image" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} className="mt-2 block min-h-12 w-full cursor-pointer rounded-xl border border-white/10 bg-white/5 text-sm text-white/60 file:mr-4 file:min-h-12 file:border-0 file:bg-white/10 file:px-4 file:py-3 file:font-semibold file:text-white hover:border-white/30" />
-            {imagePreviewUrl && <img src={imagePreviewUrl} alt="Selected evidence preview" className="mt-3 h-20 w-20 rounded-lg object-cover ring-1 ring-slate-200" />}
+            <label className="mt-5 block text-xs font-semibold text-[#8686AC]" htmlFor="image">
+              Photo Evidence <span className="font-normal text-[#8686AC]/60">(optional)</span>
+            </label>
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(event) => setImage(event.target.files?.[0] || null)}
+              className="mt-1.5 block w-full cursor-pointer rounded-xl border border-[#505081]/40 bg-[#272757] text-xs text-[#8686AC] file:mr-4 file:border-0 file:bg-[#0F0E47] file:px-4 file:py-2.5 file:font-semibold file:text-white hover:border-[#8686AC]"
+            />
+            {imagePreviewUrl && (
+              <img
+                src={imagePreviewUrl}
+                alt="Selected evidence preview"
+                className="mt-3 h-20 w-20 rounded-xl object-cover ring-1 ring-[#505081]/40"
+              />
+            )}
 
-            {error && <p className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
-            {success && <p className="mt-4 flex items-center gap-2 rounded-lg border border-[#10b981]/30 bg-[#10b981]/10 px-4 py-3 text-sm text-[#10b981]"><Check size={17} /> Alert sent to the vehicle owner.</p>}
+            {error && (
+              <p className="mt-4 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-xs text-rose-300">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-xs font-semibold text-emerald-400">
+                <Check size={16} /> Alert dispatched to the vehicle owner.
+              </p>
+            )}
 
-            <button type="submit" disabled={isSubmitting || selectedIssues.length === 0} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white px-4 py-3 font-semibold text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/40">
-              <Send size={18} />
-              {isSubmitting ? 'Sending alert...' : 'Send alert'}
+            <button
+              type="submit"
+              disabled={isSubmitting || selectedIssues.length === 0}
+              className="btn-primary mt-6 w-full"
+            >
+              <Send size={16} />
+              <span>{isSubmitting ? 'Dispatching Alert...' : 'Send Anonymous Alert'}</span>
             </button>
           </form>
         </section>
       </div>
       {showSosConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" aria-labelledby="sos-title" className="w-full max-w-sm rounded-2xl border border-red-300/30 bg-[#191114] p-6 text-white shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-labelledby="sos-title" className="w-full max-w-sm rounded-2xl border border-[#505081]/50 bg-[#0F0E47] p-6 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-4">
-              <div><Siren className="text-red-300" size={24} /><h2 id="sos-title" className="mt-3 text-xl font-bold">Trigger emergency SOS?</h2></div>
-              <button type="button" aria-label="Close confirmation" onClick={() => setShowSosConfirm(false)} className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X size={18} /></button>
+              <div>
+                <Siren className="text-[#8686AC]" size={24} />
+                <h2 id="sos-title" className="mt-3 text-xl font-bold">Trigger emergency SOS?</h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Close confirmation"
+                onClick={() => setShowSosConfirm(false)}
+                className="rounded-lg p-1 text-[#8686AC] hover:bg-white/10 hover:text-white"
+              >
+                <X size={18} />
+              </button>
             </div>
-            <p className="mt-3 text-sm leading-6 text-white/65">The vehicle owner and emergency admin team will be alerted immediately. Your location will be shared when available.</p>
-            <textarea value={sosNote} onChange={(event) => setSosNote(event.target.value)} rows="3" maxLength="500" placeholder="Optional details" className="mt-4 w-full resize-none rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-red-300/50" />
+            <p className="mt-3 text-xs leading-5 text-[#8686AC]">
+              The vehicle owner and emergency contact will be alerted immediately. Your location coordinates will be attached if granted.
+            </p>
+            <textarea
+              value={sosNote}
+              onChange={(event) => setSosNote(event.target.value)}
+              rows="3"
+              maxLength="500"
+              placeholder="Optional details (e.g. smoke detected, blocked medical vehicle)"
+              className="mt-4 w-full resize-none rounded-xl border border-[#505081]/40 bg-[#272757] p-3 text-xs text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC]"
+            />
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => setShowSosConfirm(false)} className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white/70 hover:bg-white/10">Cancel</button>
-              <button type="button" onClick={confirmSos} className="rounded-xl bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-400">Confirm SOS</button>
+              <button
+                type="button"
+                onClick={() => setShowSosConfirm(false)}
+                className="btn-secondary !h-10 !px-3 !text-xs !rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmSos}
+                className="btn-primary !h-10 !px-3 !text-xs !rounded-xl"
+              >
+                Confirm SOS
+              </button>
             </div>
           </div>
         </div>

@@ -1,20 +1,56 @@
 @import "tailwindcss";
 
+:root {
+	/* Blue Eclipse Palette with #63666A Base (40%) */
+	--color-base: #63666A;
+	--color-primary-dark: #0F0E47;
+	--color-primary-deep: #272757;
+	--color-accent-medium: #505081;
+	--color-light-accent: #8686AC;
+
+	/* Semantic references */
+	--bg-canvas: #63666A;
+	--bg-primary-dark: #0F0E47;
+	--bg-primary-deep: #272757;
+	--bg-accent-medium: #505081;
+	--text-light-accent: #8686AC;
+
+	/* Fluid spacing tokens — scale smoothly from mobile → 100-inch */
+	--card-padding: clamp(0.875rem, 1.5vw, 1.5rem);
+	--card-gap:     clamp(0.75rem,  1.2vw, 1.25rem);
+	--section-py:   clamp(2.5rem,   5vw,   6rem);
+	--container-px: clamp(1rem,     3vw,   3rem);
+
+	/* Fluid typography */
+	--text-hero:    clamp(2rem,   5vw,  4.5rem);
+	--text-h2:      clamp(1.5rem, 3vw,  3.25rem);
+	--text-h3:      clamp(1.1rem, 2vw,  1.75rem);
+	--text-body:    clamp(0.85rem, 1vw,  1.05rem);
+}
+
 html {
 	-webkit-text-size-adjust: 100%;
+	scroll-behavior: smooth;
 }
 
 body {
 	margin: 0;
-	background: #0a0a0c;
-	color: #ffffff;
+	background-color: #63666A;
+	color: #FFFFFF;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	padding-bottom: env(safe-area-inset-bottom);
+	overflow-x: hidden;
 }
 
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
+
+/* Hero entrance */
 @keyframes rise-in {
 	from {
 		opacity: 0;
-		transform: translateY(0.5rem);
+		transform: translateY(1rem);
 	}
 	to {
 		opacity: 1;
@@ -22,18 +58,570 @@ body {
 	}
 }
 
+/* Scroll-triggered card entrance (bottom → natural) */
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(28px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Left-side panel entrance */
+@keyframes fade-in-left {
+	from {
+		opacity: 0;
+		transform: translateX(-28px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* Ambient Blue Eclipse pulse */
+@keyframes pulse-blue-eclipse {
+	0%, 100% {
+		box-shadow: 0 0 16px rgba(80, 80, 129, 0.4), 0 0 35px rgba(39, 39, 87, 0.25);
+	}
+	50% {
+		box-shadow: 0 0 28px rgba(134, 134, 172, 0.65), 0 0 55px rgba(80, 80, 129, 0.35);
+	}
+}
+
+/* Laser sweep for scanner UI */
+@keyframes laser-sweep {
+	0% {
+		top: 0%;
+		opacity: 0.2;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		top: 100%;
+		opacity: 0.2;
+	}
+}
+
+/* Slow float for hero card */
+@keyframes float-slow {
+	0%, 100% {
+		transform: translateY(0px) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-8px) rotate(1deg);
+	}
+}
+
+/* Horizontal ticker/marquee — leftward */
+@keyframes ticker-scroll {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-50%);
+	}
+}
+
+/* Horizontal ticker/marquee — rightward (for feature cards) */
+@keyframes ticker-scroll-right {
+	0% {
+		transform: translateX(-50%);
+	}
+	100% {
+		transform: translateX(0%);
+	}
+}
+
+/* Subtle gradient shine sweep on hover */
+@keyframes gradient-shine {
+	0% {
+		background-position: 200% center;
+	}
+	100% {
+		background-position: -200% center;
+	}
+}
+
+/* Stat number count-up flash */
+@keyframes stat-pop {
+	0% {
+		transform: scale(0.88);
+		opacity: 0.6;
+	}
+	60% {
+		transform: scale(1.06);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+/* ============================================================
+   ANIMATION UTILITY CLASSES
+   ============================================================ */
+
 .animate-rise-in {
-	animation: rise-in 0.3s ease-out both;
+	animation: rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float {
+	animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-pulse-magma,
+.animate-pulse-blue {
+	animation: pulse-blue-eclipse 3s ease-in-out infinite;
+}
+
+.laser-line {
+	animation: laser-sweep 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   INTERSECTIONOBSERVER ENTRANCE ANIMATION
+   ============================================================ */
+
+.observe-fade {
+	opacity: 0;
+	transform: translateY(28px);
+	transition:
+		opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+		transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+	will-change: opacity, transform;
+}
+
+.observe-fade.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.observe-fade.fade-left {
+	transform: translateX(-28px);
+}
+
+.observe-fade.fade-left.is-visible {
+	transform: translateX(0);
+}
+
+/* Staggered delay helpers */
+.delay-1 { transition-delay: 80ms;  }
+.delay-2 { transition-delay: 160ms; }
+.delay-3 { transition-delay: 240ms; }
+.delay-4 { transition-delay: 320ms; }
+.delay-5 { transition-delay: 400ms; }
+.delay-6 { transition-delay: 480ms; }
+
+/* ============================================================
+   HORIZONTAL TICKER / MARQUEE
+   ============================================================ */
+
+.ticker-strip {
+	overflow: hidden;
+	width: 100%;
+	mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+.ticker-track {
+	display: flex;
+	width: max-content;
+	animation: ticker-scroll 28s linear infinite;
+	gap: clamp(1rem, 2vw, 2rem);
+	align-items: center;
+}
+
+.ticker-track:hover {
+	animation-play-state: paused;
+}
+
+.ticker-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	white-space: nowrap;
+	flex-shrink: 0;
+	padding: 0.4rem clamp(0.75rem, 1.5vw, 1.25rem);
+	border-radius: 9999px;
+	border: 1px solid rgba(134, 134, 172, 0.3);
+	background: #0F0E47;
+	font-size: clamp(0.7rem, 0.9vw, 0.8rem);
+	font-weight: 600;
+	color: #8686AC;
+	transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.ticker-item:hover {
+	border-color: #8686AC;
+	color: #FFFFFF;
+}
+
+/* Rightward-moving track — for feature card marquee */
+.ticker-track-right {
+	display: flex;
+	width: max-content;
+	animation: ticker-scroll-right 36s linear infinite;
+	gap: clamp(1rem, 2vw, 1.5rem);
+	align-items: stretch;
+}
+
+.ticker-track-right:hover {
+	animation-play-state: paused;
+}
+
+/* Individual feature card inside the rightward ticker */
+.feature-ticker-card {
+	flex-shrink: 0;
+	width: clamp(260px, 26vw, 340px);
+	border-radius: 1rem;
+	border: 1px solid rgba(134, 134, 172, 0.3);
+	background: #0F0E47;
+	padding: clamp(1rem, 1.5vw, 1.4rem);
+	box-shadow: 0 8px 24px rgba(15, 14, 71, 0.3);
+	cursor: default;
+	position: relative;
+	overflow: hidden;
+	transition:
+		transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		border-color 0.3s ease;
+	will-change: transform, box-shadow;
+}
+
+/* Gradient shine overlay */
+.feature-ticker-card::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		transparent 40%,
+		rgba(134, 134, 172, 0.12) 50%,
+		transparent 60%
+	);
+	background-size: 200% auto;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+	border-radius: inherit;
+}
+
+.feature-ticker-card:hover {
+	transform: translateY(-6px);
+	border-color: #8686AC;
+	box-shadow:
+		0 20px 50px rgba(15, 14, 71, 0.45),
+		0 0 28px rgba(80, 80, 129, 0.4),
+		0 0 8px  rgba(134, 134, 172, 0.25);
+}
+
+.feature-ticker-card:hover::after {
+	opacity: 1;
+}
+
+/* ============================================================
+   STANDARDIZED BUTTON SYSTEM
+   ============================================================ */
+
+.btn-unified {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.625rem;
+	height: 2.875rem;
+	padding-left: 1.375rem;
+	padding-right: 1.375rem;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	cursor: pointer;
+	text-decoration: none;
+	user-select: none;
+	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-unified:hover {
+	transform: translateY(-2px);
+}
+
+.btn-unified:active {
+	transform: translateY(0) scale(0.98);
+}
+
+/* Unified Primary Button Style: Blue Eclipse (Primary Dark #0F0E47 -> Deep Blue #272757) */
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.625rem;
+	height: 2.875rem;
+	padding-left: 1.375rem;
+	padding-right: 1.375rem;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	cursor: pointer;
+	text-decoration: none;
+	user-select: none;
+	color: #FFFFFF;
+	background-color: #0F0E47;
+	background-image: linear-gradient(135deg, #0F0E47 0%, #272757 100%);
+	border: 1px solid rgba(134, 134, 172, 0.5);
+	box-shadow: 0 4px 20px rgba(15, 14, 71, 0.35), 0 0 10px rgba(39, 39, 87, 0.2);
+	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	background-color: #272757;
+	background-image: linear-gradient(135deg, #272757 0%, #505081 100%);
+	border-color: #8686AC;
+	box-shadow: 0 8px 30px rgba(15, 14, 71, 0.5), 0 0 18px rgba(80, 80, 129, 0.4);
+	color: #FFFFFF;
+}
+
+.btn-primary:active {
+	transform: translateY(0) scale(0.98);
+	box-shadow: 0 2px 10px rgba(15, 14, 71, 0.3);
+}
+
+/* Unified Secondary Button Style: Deep Blue / White */
+.btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.625rem;
+	height: 2.875rem;
+	padding-left: 1.375rem;
+	padding-right: 1.375rem;
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	cursor: pointer;
+	text-decoration: none;
+	user-select: none;
+	color: #0F0E47;
+	background: #FFFFFF;
+	border: 1px solid #8686AC;
+	box-shadow: 0 4px 16px rgba(15, 14, 71, 0.12);
+	backdrop-filter: blur(8px);
+	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-secondary:hover {
+	transform: translateY(-2px);
+	background: #F4F4F8;
+	color: #0F0E47;
+	border-color: #505081;
+	box-shadow: 0 8px 25px rgba(15, 14, 71, 0.18), 0 0 15px rgba(80, 80, 129, 0.2);
+}
+
+.btn-secondary:active {
+	transform: translateY(0) scale(0.98);
+}
+
+/* ============================================================
+   CARD & SURFACE CLASSES: Blue Eclipse
+   ============================================================ */
+
+.glass-panel {
+	background: #0F0E47;
+	border: 1px solid rgba(134, 134, 172, 0.3);
+	box-shadow: 0 20px 50px rgba(15, 14, 71, 0.3);
 }
 
 .glass-card {
-	border: 1px solid rgb(255 255 255 / 10%);
-	background: #121215;
-	box-shadow: 0 18px 50px rgb(0 0 0 / 24%);
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	background: #0F0E47;
+	border: 1px solid rgba(134, 134, 172, 0.3);
+	box-shadow: 0 16px 40px rgba(15, 14, 71, 0.25);
+	transition:
+		border-color 0.3s ease,
+		box-shadow 0.3s ease,
+		transform 0.3s ease;
 }
 
 .glass-card:hover {
-	border-color: rgb(255 255 255 / 20%);
-	box-shadow: 0 20px 60px rgb(0 0 0 / 34%);
+	border-color: #8686AC;
+	box-shadow: 0 20px 50px rgba(15, 14, 71, 0.4), 0 0 20px rgba(80, 80, 129, 0.3);
+	transform: translateY(-4px);
+}
+
+/* Enhanced interactive card: float-up + glow on hover */
+.glass-card-interactive {
+	background: #0F0E47;
+	border: 1px solid rgba(134, 134, 172, 0.3);
+	box-shadow: 0 8px 24px rgba(15, 14, 71, 0.25);
+	transition:
+		transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		border-color 0.3s ease;
+	will-change: transform, box-shadow;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Subtle gradient shine overlay on hover */
+.glass-card-interactive::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		105deg,
+		transparent 40%,
+		rgba(134, 134, 172, 0.12) 50%,
+		transparent 60%
+	);
+	background-size: 200% auto;
+	opacity: 0;
+	transition: opacity 0.3s ease, background-position 0.6s ease;
+	pointer-events: none;
+	border-radius: inherit;
+}
+
+.glass-card-interactive:hover {
+	transform: translateY(-6px);
+	border-color: #8686AC;
+	box-shadow:
+		0 20px 50px rgba(15, 14, 71, 0.45),
+		0 0 28px rgba(80, 80, 129, 0.4),
+		0 0 8px  rgba(134, 134, 172, 0.25);
+}
+
+.glass-card-interactive:hover::after {
+	opacity: 1;
+	background-position: 200% center;
+}
+
+/* Alias — used on dashboard stat cards for the same effect */
+.card-hover-glow {
+	transition:
+		transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+		border-color 0.3s ease;
+	will-change: transform, box-shadow;
+}
+
+.card-hover-glow:hover {
+	transform: translateY(-6px);
+	box-shadow:
+		0 20px 50px rgba(15, 14, 71, 0.45),
+		0 0 28px rgba(80, 80, 129, 0.4),
+		0 0 8px  rgba(134, 134, 172, 0.25);
+	border-color: #8686AC !important;
+}
+
+/* ============================================================
+   FLUID GRID UTILITIES
+   ============================================================ */
+
+.fluid-grid-features {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(clamp(220px, 20vw, 320px), 1fr));
+	gap: var(--card-gap);
+}
+
+.fluid-grid-vehicles {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(clamp(260px, 22vw, 380px), 1fr));
+	gap: var(--card-gap);
+}
+
+.fluid-grid-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(clamp(180px, 16vw, 260px), 1fr));
+	gap: var(--card-gap);
+}
+
+.fluid-grid-tips {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(clamp(200px, 18vw, 300px), 1fr));
+	gap: var(--card-gap);
+}
+
+/* ============================================================
+   FLUID CONTAINER
+   ============================================================ */
+
+.fluid-container {
+	width: 100%;
+	max-width: min(2400px, 100%);
+	margin-left: auto;
+	margin-right: auto;
+	padding-left:  var(--container-px);
+	padding-right: var(--container-px);
+}
+
+/* ============================================================
+   CUSTOM CHECKBOX / TOGGLE SWITCH CLASSES
+   ============================================================ */
+
+.toggle-switch-input:checked + .toggle-switch-slider {
+	background-color: #505081;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider:before {
+	transform: translateX(1.25rem);
+}
+
+/* ============================================================
+   HTML5-QRCODE OVERRIDES — Blue Eclipse Theme
+   ============================================================ */
+
+#vehicle-qr-reader {
+	border: none !important;
+	background: transparent !important;
+}
+
+#vehicle-qr-reader img {
+	border-radius: 0.75rem;
+}
+
+#vehicle-qr-reader button {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border-radius: 0.75rem !important;
+	padding: 0.65rem 1.25rem !important;
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	background: #0F0E47 !important;
+	color: #FFFFFF !important;
+	border: 1px solid rgba(134, 134, 172, 0.4) !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+	box-shadow: 0 4px 16px rgba(15, 14, 71, 0.4) !important;
+	margin: 0.5rem auto !important;
+}
+
+#vehicle-qr-reader button:hover {
+	background: #272757 !important;
+	transform: translateY(-1px) !important;
+	border-color: #8686AC !important;
+	box-shadow: 0 6px 20px rgba(15, 14, 71, 0.6) !important;
+}
+
+#vehicle-qr-reader select {
+	background-color: #272757 !important;
+	color: #8686AC !important;
+	border: 1px solid rgba(134, 134, 172, 0.4) !important;
+	border-radius: 0.5rem !important;
+	padding: 0.4rem 0.75rem !important;
+	margin: 0.5rem !important;
+	font-size: 0.85rem !important;
+}
+
+#vehicle-qr-reader a {
+	color: #8686AC !important;
+	text-decoration: none !important;
 }
