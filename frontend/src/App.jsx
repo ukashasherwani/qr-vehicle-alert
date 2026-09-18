@@ -1,4 +1,4 @@
-import { ClerkProvider } from '@clerk/clerk-react'
+﻿import { ClerkProvider } from '@clerk/clerk-react'
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
 import AdminProtectedRoute from './components/AdminProtectedRoute'

@@ -1,30 +1,99 @@
-.admin-shell [class*="border-slate-"] {
-	border-color: rgb(255 255 255 / 10%) !important;
+/* Shared utility colors are normalized here so every route shares the site palette. */
+[class*="text-white"] {
+	color: var(--color-light-contrast) !important;
 }
 
+[class*="bg-white"] {
+	background-color: var(--color-light-contrast) !important;
+}
+
+[class*="border-white"] {
+	border-color: rgb(var(--color-light-rgb) / 30%) !important;
+}
+
+/* Admin utility colors are normalized here so the portal shares the site palette. */
+.admin-shell,
+.admin-shell [class*="bg-[#0a0a0c]"],
+.admin-shell [class*="bg-[#121215]"],
 .admin-shell [class*="bg-slate-"] {
-	background-color: #121215 !important;
+	background-color: var(--color-primary) !important;
 }
 
+.admin-shell [class*="bg-slate-900"],
+.admin-shell [class*="bg-slate-950"],
+.admin-shell [class*="bg-[#121215]"] {
+	background-color: var(--color-dark-accent) !important;
+}
+
+.admin-shell [class*="border-slate-"],
+.admin-shell [class*="border-white/"] {
+	border-color: rgb(var(--color-secondary-rgb) / 30%) !important;
+}
+
+.admin-shell [class*="text-white"],
+.admin-shell [class*="text-slate-"],
 .admin-shell [class*="text-cyan-"],
 .admin-shell [class*="text-emerald-"],
 .admin-shell [class*="text-indigo-"],
 .admin-shell [class*="text-amber-"],
-.admin-shell [class*="text-rose-"] {
-	color: #ffffff !important;
+.admin-shell [class*="text-rose-"],
+.admin-shell [class*="text-red-"] {
+	color: var(--color-light-contrast) !important;
 }
 
 .admin-shell [class*="bg-cyan-"],
 .admin-shell [class*="bg-emerald-"],
 .admin-shell [class*="bg-indigo-"],
 .admin-shell [class*="bg-amber-"],
-.admin-shell [class*="bg-rose-"] {
-	background-color: rgb(255 255 255 / 8%) !important;
+.admin-shell [class*="bg-rose-"],
+.admin-shell [class*="bg-red-"] {
+	background-color: rgb(var(--color-secondary-rgb) / 30%) !important;
+}
+
+.admin-shell [class*="border-cyan-"],
+.admin-shell [class*="border-emerald-"],
+.admin-shell [class*="border-indigo-"],
+.admin-shell [class*="border-amber-"],
+.admin-shell [class*="border-rose-"],
+.admin-shell [class*="border-red-"] {
+	border-color: var(--color-minor-accent) !important;
 }
 
 .admin-shell [class*="hover:bg-slate-"]:hover,
-.admin-shell [class*="hover:bg-cyan-"]:hover {
-	background-color: rgb(255 255 255 / 12%) !important;
+.admin-shell [class*="hover:bg-cyan-"]:hover,
+.admin-shell [class*="hover:bg-white/"]:hover {
+	background-color: rgb(var(--color-minor-rgb) / 45%) !important;
+}
+
+.admin-shell [class*="focus:border-cyan-"]:focus {
+	border-color: var(--color-light-contrast) !important;
+}
+
+/* The login route is outside .admin-shell but uses the same Tailwind utilities. */
+[class*="bg-[#0a0a0c]"],
+[class*="bg-cyan-600/"] {
+	background-color: var(--color-primary) !important;
+}
+
+.cl-card {
+	background: var(--color-dark-accent) !important;
+	border-color: rgb(var(--color-secondary-rgb) / 30%) !important;
+}
+
+.cl-rootBox,
+.cl-card,
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-formFieldLabel,
+.cl-formFieldInput,
+.cl-footerActionText,
+.cl-footerActionLink {
+	color: var(--color-light-contrast) !important;
+}
+
+.cl-formButtonPrimary {
+	background: var(--color-dark-accent) !important;
+	color: var(--color-light-contrast) !important;
 }
 
 .admin-shell button,

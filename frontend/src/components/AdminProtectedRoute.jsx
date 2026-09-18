@@ -1,4 +1,4 @@
-import { useAuth, useUser } from '@clerk/clerk-react'
+﻿import { useAuth, useUser } from '@clerk/clerk-react'
 import { AlertOctagon, ArrowLeft, Loader2, LogOut } from 'lucide-react'
 import { Navigate, Outlet } from 'react-router-dom'
 

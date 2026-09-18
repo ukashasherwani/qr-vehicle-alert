@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import { useAuth, useUser } from '@clerk/clerk-react'
 import {
   AlertCircle,
@@ -26,26 +26,26 @@ import { apiUrl, BACKEND_URL } from '../api/config'
 
 function statusClasses(status) {
   if (status === 'resolved') {
-    return 'bg-[#272757] text-[#8686AC] border border-[#8686AC]/40'
+    return 'bg-[#A68C7B] text-[#F4EFEA] border border-[#F4EFEA]/40'
   }
 
   if (status === 'in-progress') {
-    return 'bg-[#505081]/30 text-white border border-[#505081]'
+    return 'bg-[#3A2316]/30 text-white border border-[#3A2316]'
   }
 
-  return 'bg-[#0F0E47] text-white border border-[#8686AC]/40'
+  return 'bg-[#1A0F0A] text-white border border-[#F4EFEA]/40'
 }
 
 function urgencyClasses(urgency) {
   if (urgency === 'high') {
-    return 'animate-pulse bg-[#505081]/40 text-white border border-[#8686AC]/50'
+    return 'animate-pulse bg-[#3A2316]/40 text-white border border-[#F4EFEA]/50'
   }
 
   if (urgency === 'medium') {
-    return 'bg-[#272757] text-[#8686AC] border border-[#505081]'
+    return 'bg-[#A68C7B] text-[#F4EFEA] border border-[#3A2316]'
   }
 
-  return 'bg-[#272757] text-[#8686AC] border border-[#505081]/40'
+  return 'bg-[#A68C7B] text-[#F4EFEA] border border-[#3A2316]/40'
 }
 
 function getAlertContent(alert) {
@@ -95,17 +95,17 @@ function useScrollReveal() {
 /* ------------------------------------------------------------------ */
 function StatTicker({ totalVehicles, totalAlerts, resolvedAlerts, pendingAlerts, resolutionRate }) {
   const items = [
-    { icon: <CarFront size={13} className="text-[#8686AC]" />, label: `${totalVehicles} Vehicle${totalVehicles !== 1 ? 's' : ''} Registered` },
-    { icon: <TrendingUp size={13} className="text-[#8686AC]" />, label: `${totalAlerts} Total Incidents` },
-    { icon: <BellRing size={13} className="text-[#8686AC]" />, label: `${pendingAlerts} Pending Alerts` },
-    { icon: <CheckCircle2 size={13} className="text-[#8686AC]" />, label: `${resolvedAlerts} Resolved` },
-    { icon: <ShieldCheck size={13} className="text-[#8686AC]" />, label: `${resolutionRate}% Resolution Rate` },
-    { icon: <Zap size={13} className="text-[#8686AC]" />, label: 'Real-Time Socket Gateway Active' },
-    { icon: <Smartphone size={13} className="text-[#8686AC]" />, label: '100% Anonymous Contact Relay' },
+    { icon: <CarFront size={13} className="text-[#F4EFEA]" />, label: `${totalVehicles} Vehicle${totalVehicles !== 1 ? 's' : ''} Registered` },
+    { icon: <TrendingUp size={13} className="text-[#F4EFEA]" />, label: `${totalAlerts} Total Incidents` },
+    { icon: <BellRing size={13} className="text-[#F4EFEA]" />, label: `${pendingAlerts} Pending Alerts` },
+    { icon: <CheckCircle2 size={13} className="text-[#F4EFEA]" />, label: `${resolvedAlerts} Resolved` },
+    { icon: <ShieldCheck size={13} className="text-[#F4EFEA]" />, label: `${resolutionRate}% Resolution Rate` },
+    { icon: <Zap size={13} className="text-[#F4EFEA]" />, label: 'Real-Time Socket Gateway Active' },
+    { icon: <Smartphone size={13} className="text-[#F4EFEA]" />, label: '100% Anonymous Contact Relay' },
   ]
 
   return (
-    <div className="relative border-t border-b border-[#505081]/25 bg-[#0F0E47] py-2.5 overflow-hidden">
+    <div className="relative border-t border-b border-[#3A2316]/25 bg-[#1A0F0A] py-2.5 overflow-hidden">
       <div className="ticker-strip">
         <div className="ticker-track">
           {[...items, ...items].map((item, i) => (
@@ -295,9 +295,9 @@ function OwnerDashboard() {
 
   if (!isLoaded || isLoading) {
     return (
-      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#63666A] px-6 py-16 text-white">
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#5B3B2A] px-6 py-16 text-white">
         <div className="flex items-center gap-3 text-lg font-semibold text-white">
-          <RefreshCw className="animate-spin text-[#8686AC]" size={22} />
+          <RefreshCw className="animate-spin text-[#F4EFEA]" size={22} />
           Loading your Blue Eclipse Dashboard...
         </div>
       </div>
@@ -306,11 +306,11 @@ function OwnerDashboard() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#63666A] px-6 py-16 text-white">
-        <div className="glass-card rounded-2xl p-8 text-center max-w-md card-hover-glow bg-[#0F0E47] border border-[#505081]/40 text-white">
-          <ShieldCheck className="mx-auto text-[#8686AC]" size={40} />
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#5B3B2A] px-6 py-16 text-white">
+        <div className="glass-card rounded-2xl p-8 text-center max-w-md card-hover-glow bg-[#1A0F0A] border border-[#3A2316]/40 text-white">
+          <ShieldCheck className="mx-auto text-[#F4EFEA]" size={40} />
           <h2 className="mt-4 text-xl font-bold text-white">Sign In Required</h2>
-          <p className="mt-2 text-sm text-[#8686AC]">Sign in to access your vehicle registration and real-time alert logs.</p>
+          <p className="mt-2 text-sm text-[#F4EFEA]">Sign in to access your vehicle registration and real-time alert logs.</p>
         </div>
       </div>
     )
@@ -331,13 +331,13 @@ function OwnerDashboard() {
 
   return (
     <main
-      className="min-h-[calc(100vh-81px)] bg-[#63666A] text-white selection:bg-[#0F0E47] selection:text-white"
+      className="min-h-[calc(100vh-81px)] bg-[#5B3B2A] text-white selection:bg-[#1A0F0A] selection:text-white"
       style={{ paddingLeft: 'var(--container-px)', paddingRight: 'var(--container-px)', paddingTop: 'clamp(1.5rem, 3vw, 2.5rem)', paddingBottom: '2rem' }}
     >
       {toast && (
-        <div role="status" className="fixed right-4 top-24 z-50 rounded-xl border border-[#505081]/50 bg-[#0F0E47] px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(15,14,71,0.4),0_0_15px_rgba(80,80,129,0.25)]">
+        <div role="status" className="fixed right-4 top-24 z-50 rounded-xl border border-[#3A2316]/50 bg-[#1A0F0A] px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(26, 15, 10,0.4),0_0_15px_rgba(58, 35, 22,0.25)]">
           <span className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#8686AC] animate-ping" />
+            <span className="h-2 w-2 rounded-full bg-[#F4EFEA] animate-ping" />
             {toast}
           </span>
         </div>
@@ -348,7 +348,7 @@ function OwnerDashboard() {
         style={{ maxWidth: 'min(2000px, 100%)', display: 'flex', flexDirection: 'column', gap: 'clamp(1.5rem, 3vw, 2.5rem)' }}
       >
         {/* Dashboard Top Header */}
-        <div className="flex flex-col justify-between gap-3 border-b border-[#505081]/30 pb-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col justify-between gap-3 border-b border-[#3A2316]/30 pb-4 sm:flex-row sm:items-end">
           <div className="observe-fade fade-left">
             <h1
               className="font-extrabold tracking-tight text-white"
@@ -356,7 +356,7 @@ function OwnerDashboard() {
             >
               Vehicle & Alert Management
             </h1>
-            <p className="mt-1 text-sm text-[#E2E4EB]">
+            <p className="mt-1 text-sm text-[#F4EFEA]">
               Configure vehicle decals, review anonymous incoming reports, and inspect live safety telemetry.
             </p>
           </div>
@@ -371,7 +371,7 @@ function OwnerDashboard() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-[#505081]/40 bg-[#0F0E47] px-4 py-3 text-sm text-[#8686AC]">
+          <div className="rounded-xl border border-[#3A2316]/40 bg-[#1A0F0A] px-4 py-3 text-sm text-[#F4EFEA]">
             {error}
           </div>
         )}
@@ -385,16 +385,16 @@ function OwnerDashboard() {
         {/* SECTION 1: VEHICLE MANAGEMENT & INCOMING ALERTS              */}
         {/* ============================================================ */}
         <section aria-labelledby="section-1-heading">
-          <div className="flex items-center justify-between border-b border-[#505081]/30 pb-3 mb-4">
+          <div className="flex items-center justify-between border-b border-[#3A2316]/30 pb-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F0E47] border border-[#505081]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(15,14,71,0.3)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1A0F0A] border border-[#3A2316]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(26, 15, 10,0.3)]">
                 1
               </span>
               <h2 id="section-1-heading" className="text-lg font-bold text-white">
                 Registered Vehicles & Active QR Decals
               </h2>
             </div>
-            <span className="text-xs text-[#E2E4EB]/80">Core Decal System</span>
+            <span className="text-xs text-[#F4EFEA]/80">Core Decal System</span>
           </div>
 
           <div
@@ -408,10 +408,10 @@ function OwnerDashboard() {
             {/* Left: Registered Vehicles Grid */}
             <div>
               {vehicles.length === 0 ? (
-                <div className="glass-card rounded-2xl border-dashed border-[#505081]/30 p-8 text-center text-[#8686AC] observe-fade bg-[#0F0E47]">
-                  <CarFront className="mx-auto mb-3 text-[#8686AC]/60" size={36} />
+                <div className="glass-card rounded-2xl border-dashed border-[#3A2316]/30 p-8 text-center text-[#F4EFEA] observe-fade bg-[#1A0F0A]">
+                  <CarFront className="mx-auto mb-3 text-[#F4EFEA]/60" size={36} />
                   <p className="font-semibold text-white">No vehicles registered yet.</p>
-                  <p className="mt-1 text-xs text-[#8686AC]">Use the registration form on the right to claim your first vehicle QR sticker.</p>
+                  <p className="mt-1 text-xs text-[#F4EFEA]">Use the registration form on the right to claim your first vehicle QR sticker.</p>
                 </div>
               ) : (
                 <div className="fluid-grid-vehicles">
@@ -420,32 +420,32 @@ function OwnerDashboard() {
                     return (
                       <article
                         key={vehicle._id}
-                        className={`glass-card card-hover-glow observe-fade ${idx < 3 ? `delay-${idx + 1}` : ''} flex flex-col justify-between gap-3 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white`}
+                        className={`glass-card card-hover-glow observe-fade ${idx < 3 ? `delay-${idx + 1}` : ''} flex flex-col justify-between gap-3 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white`}
                         style={{ padding: 'var(--card-padding)' }}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="shrink-0 rounded-xl border border-[#505081]/40 bg-white p-1.5 shadow-sm">
+                          <div className="shrink-0 rounded-xl border border-[#3A2316]/40 bg-white p-1.5 shadow-sm">
                             <QRCodeCanvas value={scanUrl} size={88} level="M" includeMargin />
                           </div>
                           <div className="min-w-0 py-0.5">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#8686AC]">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#F4EFEA]">
                               Active Decal
                             </span>
                             <h3 className="mt-0.5 truncate text-base font-bold text-white">
                               {vehicle.plateNumber}
                             </h3>
-                            <p className="mt-0.5 text-xs text-[#8686AC] truncate">
+                            <p className="mt-0.5 text-xs text-[#F4EFEA] truncate">
                               {vehicle.model || 'Model not specified'}
                             </p>
-                            <p className="mt-1.5 text-[11px] text-[#8686AC]/70">
+                            <p className="mt-1.5 text-[11px] text-[#F4EFEA]/70">
                               Owner: {vehicle.ownerPhone || 'Masked'}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between border-t border-[#505081]/25 pt-2.5">
+                        <div className="flex items-center justify-between border-t border-[#3A2316]/25 pt-2.5">
                           <a
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8686AC] hover:text-white transition"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F4EFEA] hover:text-white transition"
                             href={`/scan/${vehicle._id}`}
                             target="_blank"
                             rel="noreferrer"
@@ -457,7 +457,7 @@ function OwnerDashboard() {
                           <button
                             type="button"
                             onClick={() => copyToClipboard(scanUrl, 'Scan URL')}
-                            className="text-xs text-[#8686AC] hover:text-white transition flex items-center gap-1"
+                            className="text-xs text-[#F4EFEA] hover:text-white transition flex items-center gap-1"
                             title="Copy Scan URL"
                           >
                             <Copy size={13} />
@@ -474,15 +474,15 @@ function OwnerDashboard() {
             {/* Right: Registration Form */}
             <form
               onSubmit={handleSubmit}
-              className="glass-card observe-fade delay-2 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white h-fit card-hover-glow"
+              className="glass-card observe-fade delay-2 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white h-fit card-hover-glow"
               style={{ padding: 'var(--card-padding)' }}
             >
-              <div className="mb-4 flex items-center gap-2 border-b border-[#505081]/30 pb-3">
-                <Plus className="text-[#8686AC]" size={18} />
+              <div className="mb-4 flex items-center gap-2 border-b border-[#3A2316]/30 pb-3">
+                <Plus className="text-[#F4EFEA]" size={18} />
                 <h3 className="text-base font-bold text-white">Register New Vehicle</h3>
               </div>
 
-              <label className="block text-xs font-semibold text-[#8686AC]" htmlFor="plateNumber">
+              <label className="block text-xs font-semibold text-[#F4EFEA]" htmlFor="plateNumber">
                 License Plate Number *
               </label>
               <input
@@ -490,22 +490,22 @@ function OwnerDashboard() {
                 required
                 value={form.plateNumber}
                 onChange={(event) => setForm({ ...form, plateNumber: event.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-[#505081]/40 bg-[#272757] px-3 py-2 text-sm text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC] focus:ring-1 focus:ring-[#8686AC] transition"
+                className="mt-1.5 w-full rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] px-3 py-2 text-sm text-white outline-none placeholder:text-[#F4EFEA]/50 focus:border-[#F4EFEA] focus:ring-1 focus:ring-[#F4EFEA] transition"
                 placeholder="e.g. ABC-1234"
               />
 
-              <label className="mt-3 block text-xs font-semibold text-[#8686AC]" htmlFor="model">
+              <label className="mt-3 block text-xs font-semibold text-[#F4EFEA]" htmlFor="model">
                 Vehicle Make / Model
               </label>
               <input
                 id="model"
                 value={form.model}
                 onChange={(event) => setForm({ ...form, model: event.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-[#505081]/40 bg-[#272757] px-3 py-2 text-sm text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC] focus:ring-1 focus:ring-[#8686AC] transition"
+                className="mt-1.5 w-full rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] px-3 py-2 text-sm text-white outline-none placeholder:text-[#F4EFEA]/50 focus:border-[#F4EFEA] focus:ring-1 focus:ring-[#F4EFEA] transition"
                 placeholder="e.g. Toyota Corolla"
               />
 
-              <label className="mt-3 block text-xs font-semibold text-[#8686AC]" htmlFor="ownerPhone">
+              <label className="mt-3 block text-xs font-semibold text-[#F4EFEA]" htmlFor="ownerPhone">
                 Owner Phone (Confidential & Cloaked) *
               </label>
               <input
@@ -513,7 +513,7 @@ function OwnerDashboard() {
                 required
                 value={form.ownerPhone}
                 onChange={(event) => setForm({ ...form, ownerPhone: event.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-[#505081]/40 bg-[#272757] px-3 py-2 text-sm text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC] focus:ring-1 focus:ring-[#8686AC] transition"
+                className="mt-1.5 w-full rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] px-3 py-2 text-sm text-white outline-none placeholder:text-[#F4EFEA]/50 focus:border-[#F4EFEA] focus:ring-1 focus:ring-[#F4EFEA] transition"
                 placeholder="+1 555 019 2831"
                 type="tel"
               />
@@ -532,28 +532,28 @@ function OwnerDashboard() {
           {/* Incoming Alerts Sub-container */}
           <div className="mt-5">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="text-[#0F0E47]" size={18} />
-              <h3 className="text-base font-bold text-[#0F0E47]">Live Incoming Alerts</h3>
-              <span className="ml-1 rounded-full bg-[#0F0E47] border border-[#505081]/40 px-2 py-0.5 text-xs font-bold text-white">
+              <AlertCircle className="text-[#1A0F0A]" size={18} />
+              <h3 className="text-base font-bold text-[#1A0F0A]">Live Incoming Alerts</h3>
+              <span className="ml-1 rounded-full bg-[#1A0F0A] border border-[#3A2316]/40 px-2 py-0.5 text-xs font-bold text-white">
                 {alerts.length}
               </span>
             </div>
 
-            <div className="glass-card overflow-hidden rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white">
+            <div className="glass-card overflow-hidden rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white">
               {alerts.length === 0 ? (
-                <div className="p-6 text-center text-[#8686AC]">
-                  <CheckCircle2 className="mx-auto mb-2 text-[#8686AC]" size={26} />
+                <div className="p-6 text-center text-[#F4EFEA]">
+                  <CheckCircle2 className="mx-auto mb-2 text-[#F4EFEA]" size={26} />
                   <p className="font-semibold text-white">All clear!</p>
-                  <p className="text-xs text-[#8686AC]/70">No open incident alerts or emergency broadcasts reported for your vehicles.</p>
+                  <p className="text-xs text-[#F4EFEA]/70">No open incident alerts or emergency broadcasts reported for your vehicles.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-[#505081]/20">
+                <div className="divide-y divide-[#3A2316]/20">
                   {alerts.map((alert) => {
                     const alertContent = getAlertContent(alert)
                     return (
                       <article
                         key={alert._id}
-                        className="observe-fade flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between transition hover:bg-[#272757]"
+                        className="observe-fade flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between transition hover:bg-[#A68C7B]"
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
@@ -562,9 +562,9 @@ function OwnerDashboard() {
                             </span>
                           </div>
                           {alertContent.message && (
-                            <p className="text-sm text-[#8686AC]">{alertContent.message}</p>
+                            <p className="text-sm text-[#F4EFEA]">{alertContent.message}</p>
                           )}
-                          <p className="text-xs text-[#8686AC]/70">
+                          <p className="text-xs text-[#F4EFEA]/70">
                             Vehicle: <span className="text-white font-semibold">{alert.vehicleId?.plateNumber || 'Unknown'}</span> · {new Date(alert.createdAt).toLocaleString()}
                           </p>
                           {alert.imageUrl && (
@@ -572,7 +572,7 @@ function OwnerDashboard() {
                               <img
                                 src={alert.imageUrl}
                                 alt="Alert evidence"
-                                className="h-16 w-16 rounded-xl object-cover ring-1 ring-[#505081]/40 transition hover:opacity-80"
+                                className="h-16 w-16 rounded-xl object-cover ring-1 ring-[#3A2316]/40 transition hover:opacity-80"
                               />
                             </a>
                           )}
@@ -620,65 +620,65 @@ function OwnerDashboard() {
         {/* SECTION 2: ANALYTICS / OVERVIEW SECTION                     */}
         {/* ============================================================ */}
         <section aria-labelledby="section-2-heading">
-          <div className="flex items-center justify-between border-b border-[#505081]/30 pb-3 mb-4">
+          <div className="flex items-center justify-between border-b border-[#3A2316]/30 pb-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F0E47] border border-[#505081]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(15,14,71,0.3)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1A0F0A] border border-[#3A2316]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(26, 15, 10,0.3)]">
                 2
               </span>
               <h2 id="section-2-heading" className="text-lg font-bold text-white">
                 Telemetry & Incident Analytics Overview
               </h2>
             </div>
-            <span className="text-xs text-[#E2E4EB]/80">Performance Metrics</span>
+            <span className="text-xs text-[#F4EFEA]/80">Performance Metrics</span>
           </div>
 
           {/* 4 Stat Cards — fluid grid */}
           <div className="fluid-grid-stats">
             {/* Stat 1 */}
-            <div className="glass-card card-hover-glow observe-fade delay-1 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white" style={{ padding: 'var(--card-padding)' }}>
+            <div className="glass-card card-hover-glow observe-fade delay-1 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white" style={{ padding: 'var(--card-padding)' }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#8686AC] uppercase tracking-wider">Total Vehicles</span>
-                <CarFront size={17} className="text-[#8686AC]" />
+                <span className="text-xs font-semibold text-[#F4EFEA] uppercase tracking-wider">Total Vehicles</span>
+                <CarFront size={17} className="text-[#F4EFEA]" />
               </div>
               <p className="mt-2.5 text-3xl font-extrabold text-white">{totalVehicles}</p>
-              <p className="mt-1 text-xs text-[#8686AC]/70">Registered to your account</p>
+              <p className="mt-1 text-xs text-[#F4EFEA]/70">Registered to your account</p>
             </div>
 
             {/* Stat 2 */}
-            <div className="glass-card card-hover-glow observe-fade delay-2 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white" style={{ padding: 'var(--card-padding)' }}>
+            <div className="glass-card card-hover-glow observe-fade delay-2 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white" style={{ padding: 'var(--card-padding)' }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#8686AC] uppercase tracking-wider">Total Incidents</span>
-                <TrendingUp size={17} className="text-[#8686AC]" />
+                <span className="text-xs font-semibold text-[#F4EFEA] uppercase tracking-wider">Total Incidents</span>
+                <TrendingUp size={17} className="text-[#F4EFEA]" />
               </div>
               <p className="mt-2.5 text-3xl font-extrabold text-white">{totalAlerts}</p>
-              <p className="mt-1 text-xs text-[#8686AC]/70">Lifetime alerts captured</p>
+              <p className="mt-1 text-xs text-[#F4EFEA]/70">Lifetime alerts captured</p>
             </div>
 
             {/* Stat 3 */}
-            <div className="glass-card card-hover-glow observe-fade delay-3 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white" style={{ padding: 'var(--card-padding)' }}>
+            <div className="glass-card card-hover-glow observe-fade delay-3 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white" style={{ padding: 'var(--card-padding)' }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#8686AC] uppercase tracking-wider">Pending Attention</span>
-                <BellRing size={17} className="text-[#8686AC]" />
+                <span className="text-xs font-semibold text-[#F4EFEA] uppercase tracking-wider">Pending Attention</span>
+                <BellRing size={17} className="text-[#F4EFEA]" />
               </div>
               <p className="mt-2.5 text-3xl font-extrabold text-white">{pendingAlerts}</p>
-              <p className="mt-1 text-xs text-[#8686AC]/70">Requires owner action</p>
+              <p className="mt-1 text-xs text-[#F4EFEA]/70">Requires owner action</p>
             </div>
 
             {/* Stat 4 */}
-            <div className="glass-card card-hover-glow observe-fade delay-4 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white" style={{ padding: 'var(--card-padding)' }}>
+            <div className="glass-card card-hover-glow observe-fade delay-4 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white" style={{ padding: 'var(--card-padding)' }}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#8686AC] uppercase tracking-wider">Privacy Shield</span>
-                <ShieldCheck size={17} className="text-[#8686AC]" />
+                <span className="text-xs font-semibold text-[#F4EFEA] uppercase tracking-wider">Privacy Shield</span>
+                <ShieldCheck size={17} className="text-[#F4EFEA]" />
               </div>
               <p className="mt-2.5 text-3xl font-extrabold text-white">100%</p>
-              <p className="mt-1 text-xs text-[#8686AC]/70">Cloaked numbers & anonymity</p>
+              <p className="mt-1 text-xs text-[#F4EFEA]/70">Cloaked numbers & anonymity</p>
             </div>
           </div>
 
           {/* Progress Bars Container */}
-          <div className="glass-card observe-fade mt-4 rounded-2xl border border-[#505081]/35 bg-[#0F0E47] text-white" style={{ padding: 'var(--card-padding)' }}>
+          <div className="glass-card observe-fade mt-4 rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] text-white" style={{ padding: 'var(--card-padding)' }}>
             <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
-              <Zap size={15} className="text-[#8686AC]" />
+              <Zap size={15} className="text-[#F4EFEA]" />
               Operational Health & Progress Bars
             </h3>
 
@@ -687,15 +687,15 @@ function OwnerDashboard() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-white">Alert Resolution Rate</span>
-                  <span className="text-[#8686AC]">{resolutionRate}%</span>
+                  <span className="text-[#F4EFEA]">{resolutionRate}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#272757]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#A68C7B]">
                   <div
-                    className="h-full bg-[#8686AC] transition-all duration-700 shadow-[0_0_10px_rgba(134,134,172,0.5)]"
+                    className="h-full bg-[#F4EFEA] transition-all duration-700 shadow-[0_0_10px_rgba(244, 239, 234,0.5)]"
                     style={{ width: `${resolutionRate}%` }}
                   />
                 </div>
-                <p className="text-[11px] text-[#8686AC]">
+                <p className="text-[11px] text-[#F4EFEA]">
                   {resolvedAlerts} of {totalAlerts} incidents safely resolved.
                 </p>
               </div>
@@ -704,15 +704,15 @@ function OwnerDashboard() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-white">QR Code Dynamic Decal Verification</span>
-                  <span className="text-[#8686AC]">100% Active</span>
+                  <span className="text-[#F4EFEA]">100% Active</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#272757]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#A68C7B]">
                   <div
-                    className="h-full bg-[#8686AC] transition-all duration-700 shadow-[0_0_10px_rgba(134,134,172,0.5)]"
+                    className="h-full bg-[#F4EFEA] transition-all duration-700 shadow-[0_0_10px_rgba(244, 239, 234,0.5)]"
                     style={{ width: '100%' }}
                   />
                 </div>
-                <p className="text-[11px] text-[#8686AC]">
+                <p className="text-[11px] text-[#F4EFEA]">
                   All registered vehicle QR codes synchronize with instant scanning routing.
                 </p>
               </div>
@@ -721,15 +721,15 @@ function OwnerDashboard() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-white">Real-Time Socket Gateway Uptime</span>
-                  <span className="text-[#8686AC]">99.98%</span>
+                  <span className="text-[#F4EFEA]">99.98%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#272757]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#A68C7B]">
                   <div
-                    className="h-full bg-gradient-to-r from-[#505081] to-[#8686AC] transition-all duration-700"
+                    className="h-full bg-gradient-to-r from-[#3A2316] to-[#F4EFEA] transition-all duration-700"
                     style={{ width: '99.98%' }}
                   />
                 </div>
-                <p className="text-[11px] text-[#8686AC]">
+                <p className="text-[11px] text-[#F4EFEA]">
                   Sub-second alert dispatch readiness across WebSockets.
                 </p>
               </div>
@@ -741,9 +741,9 @@ function OwnerDashboard() {
         {/* SECTION 3: INTERACTIVE DATA TABLE / MANAGEMENT              */}
         {/* ============================================================ */}
         <section aria-labelledby="section-3-heading">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#505081]/30 pb-3 mb-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#3A2316]/30 pb-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F0E47] border border-[#505081]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(15,14,71,0.3)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1A0F0A] border border-[#3A2316]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(26, 15, 10,0.3)]">
                 3
               </span>
               <h2 id="section-3-heading" className="text-lg font-bold text-white">
@@ -753,22 +753,22 @@ function OwnerDashboard() {
 
             {/* Search Input Bar */}
             <div className="relative w-full sm:w-60">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8686AC]" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#F4EFEA]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search plate or model..."
-                className="w-full rounded-xl border border-[#505081]/40 bg-[#272757] pl-8 pr-3 py-1.5 text-xs text-white outline-none placeholder:text-[#8686AC]/60 focus:border-[#8686AC] transition"
+                className="w-full rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] pl-8 pr-3 py-1.5 text-xs text-white outline-none placeholder:text-[#F4EFEA]/60 focus:border-[#F4EFEA] transition"
               />
             </div>
           </div>
 
           {/* Interactive Data Table */}
-          <div className="observe-fade overflow-hidden rounded-2xl border border-[#505081]/35 bg-[#0F0E47] shadow-lg">
+          <div className="observe-fade overflow-hidden rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] shadow-lg">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-[#8686AC]">
-                <thead className="border-b border-[#505081]/30 bg-[#272757] text-[11px] uppercase tracking-wider text-white">
+              <table className="w-full text-left text-xs text-[#F4EFEA]">
+                <thead className="border-b border-[#3A2316]/30 bg-[#A68C7B] text-[11px] uppercase tracking-wider text-white">
                   <tr>
                     <th scope="col" className="px-4 py-3">Plate Number</th>
                     <th scope="col" className="px-4 py-3">Make / Model</th>
@@ -778,10 +778,10 @@ function OwnerDashboard() {
                     <th scope="col" className="px-4 py-3 text-right">Quick Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#505081]/20">
+                <tbody className="divide-y divide-[#3A2316]/20">
                   {filteredVehicles.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-6 text-center text-[#8686AC]">
+                      <td colSpan={6} className="px-4 py-6 text-center text-[#F4EFEA]">
                         {vehicles.length === 0
                           ? 'No vehicles in fleet.'
                           : 'No vehicles match your search filter.'}
@@ -797,7 +797,7 @@ function OwnerDashboard() {
                       return (
                         <tr
                           key={vehicle._id}
-                          className="bg-[#0F0E47] transition-all hover:bg-[#272757] hover:-translate-y-px"
+                          className="bg-[#1A0F0A] transition-all hover:bg-[#A68C7B] hover:-translate-y-px"
                         >
                           <td className="px-4 py-3.5 font-bold text-white whitespace-nowrap">
                             {vehicle.plateNumber}
@@ -806,20 +806,20 @@ function OwnerDashboard() {
                             {vehicle.model || '—'}
                           </td>
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="rounded-md bg-[#272757] border border-[#505081]/30 px-2 py-0.5 font-mono text-[11px] text-[#8686AC]">
+                            <span className="rounded-md bg-[#A68C7B] border border-[#3A2316]/30 px-2 py-0.5 font-mono text-[11px] text-[#F4EFEA]">
                               {vehicle.ownerPhone || 'Masked'}
                             </span>
                           </td>
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                              vehicleAlertCount > 0 ? 'bg-[#505081] text-white' : 'bg-[#272757] text-[#8686AC]'
+                              vehicleAlertCount > 0 ? 'bg-[#3A2316] text-white' : 'bg-[#A68C7B] text-[#F4EFEA]'
                             }`}>
                               {vehicleAlertCount} alerts
                             </span>
                           </td>
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8686AC]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#8686AC] animate-pulse" />
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#F4EFEA]">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#F4EFEA] animate-pulse" />
                               Ready & Verified
                             </span>
                           </td>
@@ -828,7 +828,7 @@ function OwnerDashboard() {
                               <button
                                 type="button"
                                 onClick={() => copyToClipboard(scanUrl, 'Decal Scan URL')}
-                                className="rounded-lg border border-[#505081]/40 bg-[#272757] p-1.5 text-[#8686AC] hover:border-[#8686AC] hover:text-white transition"
+                                className="rounded-lg border border-[#3A2316]/40 bg-[#A68C7B] p-1.5 text-[#F4EFEA] hover:border-[#F4EFEA] hover:text-white transition"
                                 title="Copy Scan URL"
                               >
                                 <Copy size={13} />
@@ -837,7 +837,7 @@ function OwnerDashboard() {
                                 href={`/scan/${vehicle._id}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="rounded-lg border border-[#505081]/40 bg-[#272757] p-1.5 text-[#8686AC] hover:border-[#8686AC] hover:text-white transition"
+                                className="rounded-lg border border-[#3A2316]/40 bg-[#A68C7B] p-1.5 text-[#F4EFEA] hover:border-[#F4EFEA] hover:text-white transition"
                                 title="Open Decal Scan Portal"
                               >
                                 <ExternalLink size={13} />
@@ -858,28 +858,28 @@ function OwnerDashboard() {
         {/* SECTION 4: SETTINGS / SECONDARY TOOLS PANEL                 */}
         {/* ============================================================ */}
         <section aria-labelledby="section-4-heading" className="pb-8">
-          <div className="flex items-center justify-between border-b border-[#505081]/30 pb-3 mb-4">
+          <div className="flex items-center justify-between border-b border-[#3A2316]/30 pb-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F0E47] border border-[#505081]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(15,14,71,0.3)]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1A0F0A] border border-[#3A2316]/60 text-xs font-bold text-white shadow-[0_0_10px_rgba(26, 15, 10,0.3)]">
                 4
               </span>
               <h2 id="section-4-heading" className="text-lg font-bold text-white">
                 Decal Preferences & Secondary Tools Panel
               </h2>
             </div>
-            <span className="text-xs text-[#E2E4EB]/80">Custom Controls</span>
+            <span className="text-xs text-[#F4EFEA]/80">Custom Controls</span>
           </div>
 
-          <div className="observe-fade glass-card rounded-2xl border border-[#505081]/35 bg-[#0F0E47] overflow-hidden">
+          <div className="observe-fade glass-card rounded-2xl border border-[#3A2316]/35 bg-[#1A0F0A] overflow-hidden">
             {/* Tab Switching Header */}
-            <div className="flex border-b border-[#505081]/30 bg-[#272757] px-4 overflow-x-auto">
+            <div className="flex border-b border-[#3A2316]/30 bg-[#A68C7B] px-4 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setActiveSettingsTab('delivery')}
                 className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
                   activeSettingsTab === 'delivery'
-                    ? 'border-[#8686AC] text-white'
-                    : 'border-transparent text-[#8686AC] hover:text-white'
+                    ? 'border-[#F4EFEA] text-white'
+                    : 'border-transparent text-[#F4EFEA] hover:text-white'
                 }`}
               >
                 <Sliders size={13} className={activeSettingsTab === 'delivery' ? 'text-white' : ''} />
@@ -891,8 +891,8 @@ function OwnerDashboard() {
                 onClick={() => setActiveSettingsTab('printing')}
                 className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
                   activeSettingsTab === 'printing'
-                    ? 'border-[#8686AC] text-white'
-                    : 'border-transparent text-[#8686AC] hover:text-white'
+                    ? 'border-[#F4EFEA] text-white'
+                    : 'border-transparent text-[#F4EFEA] hover:text-white'
                 }`}
               >
                 <FileText size={13} className={activeSettingsTab === 'printing' ? 'text-white' : ''} />
@@ -904,8 +904,8 @@ function OwnerDashboard() {
                 onClick={() => setActiveSettingsTab('security')}
                 className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
                   activeSettingsTab === 'security'
-                    ? 'border-[#8686AC] text-white'
-                    : 'border-transparent text-[#8686AC] hover:text-white'
+                    ? 'border-[#F4EFEA] text-white'
+                    : 'border-transparent text-[#F4EFEA] hover:text-white'
                 }`}
               >
                 <ShieldCheck size={13} className={activeSettingsTab === 'security' ? 'text-white' : ''} />
@@ -916,16 +916,16 @@ function OwnerDashboard() {
             {/* Tab 1: Alert Routing Preferences */}
             {activeSettingsTab === 'delivery' && (
               <div style={{ padding: 'var(--card-padding)' }} className="space-y-3">
-                <p className="text-xs text-[#8686AC]">
+                <p className="text-xs text-[#F4EFEA]">
                   Manage how the vehicle proxy alerts you when a passerby scans your decal.
                 </p>
 
                 <div className="space-y-3">
                   {/* Toggle 1 */}
-                  <div className="flex items-center justify-between rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 transition hover:border-[#505081]/60">
+                  <div className="flex items-center justify-between rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 transition hover:border-[#3A2316]/60">
                     <div>
                       <h4 className="text-sm font-bold text-white">Instant SMS Gateway Notifications</h4>
-                      <p className="text-xs text-[#8686AC]">Receive an SMS ping immediately upon QR decal recognition.</p>
+                      <p className="text-xs text-[#F4EFEA]">Receive an SMS ping immediately upon QR decal recognition.</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer ml-4 shrink-0">
                       <input
@@ -934,15 +934,15 @@ function OwnerDashboard() {
                         onChange={(e) => setToggleSettings({ ...toggleSettings, instantSms: e.target.checked })}
                         className="sr-only toggle-switch-input"
                       />
-                      <div className="w-11 h-6 bg-[#0F0E47] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
+                      <div className="w-11 h-6 bg-[#1A0F0A] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
                     </label>
                   </div>
 
                   {/* Toggle 2 */}
-                  <div className="flex items-center justify-between rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 transition hover:border-[#505081]/60">
+                  <div className="flex items-center justify-between rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 transition hover:border-[#3A2316]/60">
                     <div>
                       <h4 className="text-sm font-bold text-white">Audible SOS Siren Emergency Bypass</h4>
-                      <p className="text-xs text-[#8686AC]">Elevate emergency SOS notifications with high-priority audible alert.</p>
+                      <p className="text-xs text-[#F4EFEA]">Elevate emergency SOS notifications with high-priority audible alert.</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer ml-4 shrink-0">
                       <input
@@ -951,15 +951,15 @@ function OwnerDashboard() {
                         onChange={(e) => setToggleSettings({ ...toggleSettings, emergencySiren: e.target.checked })}
                         className="sr-only toggle-switch-input"
                       />
-                      <div className="w-11 h-6 bg-[#0F0E47] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
+                      <div className="w-11 h-6 bg-[#1A0F0A] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
                     </label>
                   </div>
 
                   {/* Toggle 3 */}
-                  <div className="flex items-center justify-between rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 transition hover:border-[#505081]/60">
+                  <div className="flex items-center justify-between rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 transition hover:border-[#3A2316]/60">
                     <div>
                       <h4 className="text-sm font-bold text-white">Strict Phone Number Cloaking</h4>
-                      <p className="text-xs text-[#8686AC]">Ensure browser clients never receive real phone numbers under any circumstance.</p>
+                      <p className="text-xs text-[#F4EFEA]">Ensure browser clients never receive real phone numbers under any circumstance.</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer ml-4 shrink-0">
                       <input
@@ -968,7 +968,7 @@ function OwnerDashboard() {
                         onChange={(e) => setToggleSettings({ ...toggleSettings, phoneMasking: e.target.checked })}
                         className="sr-only toggle-switch-input"
                       />
-                      <div className="w-11 h-6 bg-[#0F0E47] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
+                      <div className="w-11 h-6 bg-[#1A0F0A] rounded-full transition-colors toggle-switch-slider relative before:content-[''] before:absolute before:top-1 before:left-1 before:bg-white before:h-4 before:w-4 before:rounded-full before:transition-transform" />
                     </label>
                   </div>
                 </div>
@@ -979,22 +979,22 @@ function OwnerDashboard() {
             {activeSettingsTab === 'printing' && (
               <div style={{ padding: 'var(--card-padding)' }} className="space-y-3">
                 <h4 className="text-sm font-bold text-white">Optimal Physical Decal Printing & Placement</h4>
-                <p className="text-xs text-[#8686AC]">Follow these tips to ensure maximum durability and scan rates on your vehicle:</p>
+                <p className="text-xs text-[#F4EFEA]">Follow these tips to ensure maximum durability and scan rates on your vehicle:</p>
 
                 <div className="fluid-grid-tips pt-1">
-                  <div className="rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 card-hover-glow text-[#8686AC]">
+                  <div className="rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 card-hover-glow text-[#F4EFEA]">
                     <span className="text-xs font-bold text-white">1. Windshield Corner</span>
-                    <p className="mt-1 text-xs text-[#8686AC]">Place sticker on the lower passenger side corner of the front windshield for clear line-of-sight.</p>
+                    <p className="mt-1 text-xs text-[#F4EFEA]">Place sticker on the lower passenger side corner of the front windshield for clear line-of-sight.</p>
                   </div>
 
-                  <div className="rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 card-hover-glow text-[#8686AC]">
+                  <div className="rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 card-hover-glow text-[#F4EFEA]">
                     <span className="text-xs font-bold text-white">2. Weatherproof Vinyl</span>
-                    <p className="mt-1 text-xs text-[#8686AC]">Print on UV-resistant, weatherproof matte vinyl stickers to avoid glare under direct sun.</p>
+                    <p className="mt-1 text-xs text-[#F4EFEA]">Print on UV-resistant, weatherproof matte vinyl stickers to avoid glare under direct sun.</p>
                   </div>
 
-                  <div className="rounded-xl border border-[#505081]/30 bg-[#272757] p-3.5 card-hover-glow text-[#8686AC]">
+                  <div className="rounded-xl border border-[#3A2316]/30 bg-[#A68C7B] p-3.5 card-hover-glow text-[#F4EFEA]">
                     <span className="text-xs font-bold text-white">3. Recommended Size</span>
-                    <p className="mt-1 text-xs text-[#8686AC]">2.5 x 2.5 inches (65mm) gives standard smartphone cameras instant autofocus lock from 3-5 feet.</p>
+                    <p className="mt-1 text-xs text-[#F4EFEA]">2.5 x 2.5 inches (65mm) gives standard smartphone cameras instant autofocus lock from 3-5 feet.</p>
                   </div>
                 </div>
               </div>
@@ -1004,13 +1004,13 @@ function OwnerDashboard() {
             {activeSettingsTab === 'security' && (
               <div style={{ padding: 'var(--card-padding)' }} className="space-y-3">
                 <h4 className="text-sm font-bold text-white">Privacy Infrastructure Guarantee</h4>
-                <p className="text-xs text-[#8686AC]">
+                <p className="text-xs text-[#F4EFEA]">
                   Your account is protected by Clerk identity tokens and server-side notification relays.
                 </p>
 
-                <div className="rounded-xl border border-[#8686AC]/30 bg-[#272757] p-3.5 text-xs text-[#8686AC] space-y-2">
+                <div className="rounded-xl border border-[#F4EFEA]/30 bg-[#A68C7B] p-3.5 text-xs text-[#F4EFEA] space-y-2">
                   <p className="flex items-center gap-2 font-bold text-white">
-                    <CheckCircle2 size={15} className="text-[#8686AC]" /> 256-Bit TLS Socket Tunnel
+                    <CheckCircle2 size={15} className="text-[#F4EFEA]" /> 256-Bit TLS Socket Tunnel
                   </p>
                   <p>
                     Passersby never interact with your contact details. Alert dispatches are signed and verified server-side.

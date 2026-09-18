@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Check, LoaderCircle, Send, ShieldCheck, Siren, X } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import { apiUrl } from '../api/config'
@@ -154,8 +154,8 @@ function PublicScan() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center gap-3 bg-[#63666A] text-white">
-        <LoaderCircle className="animate-spin text-[#8686AC]" size={22} />
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center gap-3 bg-[#5B3B2A] text-white">
+        <LoaderCircle className="animate-spin text-[#F4EFEA]" size={22} />
         <span>Loading vehicle details...</span>
       </div>
     )
@@ -163,54 +163,54 @@ function PublicScan() {
 
   if (!vehicle) {
     return (
-      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#63666A] px-6 py-20 text-center text-white">
-        <div className="glass-card rounded-2xl p-8 max-w-md border border-[#505081]/40 bg-[#0F0E47] text-white">
-          <AlertTriangle className="mx-auto text-[#8686AC]" size={36} />
+      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[#5B3B2A] px-6 py-20 text-center text-white">
+        <div className="glass-card rounded-2xl p-8 max-w-md border border-[#3A2316]/40 bg-[#1A0F0A] text-white">
+          <AlertTriangle className="mx-auto text-[#F4EFEA]" size={36} />
           <h1 className="mt-4 text-2xl font-bold text-white">Vehicle Unavailable</h1>
-          <p className="mt-2 text-sm text-[#8686AC]">{error || 'This QR decal is not linked to an active vehicle.'}</p>
+          <p className="mt-2 text-sm text-[#F4EFEA]">{error || 'This QR decal is not linked to an active vehicle.'}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <main className="min-h-[calc(100vh-81px)] bg-[#63666A] px-4 py-10 text-white sm:px-6 selection:bg-[#0F0E47] selection:text-white">
+    <main className="min-h-[calc(100vh-81px)] bg-[#5B3B2A] px-4 py-10 text-white sm:px-6 selection:bg-[#1A0F0A] selection:text-white">
       <div className="mx-auto max-w-xl">
-        <section className="glass-card animate-rise-in rounded-3xl p-6 sm:p-8 border border-[#505081]/35 bg-[#0F0E47] shadow-[0_24px_60px_rgba(15,14,71,0.35)] text-white">
-          <div className="rounded-2xl border border-[#505081]/30 bg-[#272757] p-4 sm:p-5">
+        <section className="glass-card animate-rise-in rounded-3xl p-6 sm:p-8 border border-[#3A2316]/35 bg-[#1A0F0A] shadow-[0_24px_60px_rgba(26, 15, 10,0.35)] text-white">
+          <div className="rounded-2xl border border-[#3A2316]/30 bg-[#A68C7B] p-4 sm:p-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F0E47] border border-[#505081]/50 text-white shadow-[0_0_12px_rgba(80,80,129,0.3)]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1A0F0A] border border-[#3A2316]/50 text-white shadow-[0_0_12px_rgba(58, 35, 22,0.3)]">
                 <ShieldCheck size={22} aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-base font-bold tracking-tight text-white sm:text-lg">QR Vehicle Alert Service</h1>
-                <p className="mt-1 text-xs leading-relaxed text-[#8686AC]">
+                <p className="mt-1 text-xs leading-relaxed text-[#F4EFEA]">
                   You are notifying the vehicle owner privately and securely. Select an issue below or type a custom message. No account required, and the owner will be notified instantly.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 border-b border-[#505081]/25 pb-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8686AC]">Vehicle contact</p>
+          <div className="mt-6 border-b border-[#3A2316]/25 pb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#F4EFEA]">Vehicle contact</p>
             <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white">{vehicle.plateNumber}</h1>
-            <p className="mt-1 text-sm text-[#8686AC]">{vehicle.model || 'Vehicle model not provided'}</p>
+            <p className="mt-1 text-sm text-[#F4EFEA]">{vehicle.model || 'Vehicle model not provided'}</p>
           </div>
 
           {/* Emergency Assistance Callout */}
-          <section className="mt-6 rounded-2xl border border-[#505081]/50 bg-[#272757] p-4 shadow-[0_0_24px_rgba(80,80,129,0.15)]">
+          <section className="mt-6 rounded-2xl border border-[#3A2316]/50 bg-[#A68C7B] p-4 shadow-[0_0_24px_rgba(58, 35, 22,0.15)]">
             <div className="flex items-start gap-3">
-              <Siren className="mt-0.5 shrink-0 text-[#8686AC]" size={22} />
+              <Siren className="mt-0.5 shrink-0 text-[#F4EFEA]" size={22} />
               <div className="min-w-0">
                 <h2 className="font-bold text-white">Emergency Assistance</h2>
-                <p className="mt-0.5 text-xs leading-5 text-[#8686AC]">Use this only when immediate urgent action is required for this vehicle.</p>
+                <p className="mt-0.5 text-xs leading-5 text-[#F4EFEA]">Use this only when immediate urgent action is required for this vehicle.</p>
               </div>
             </div>
             <button
               type="button"
               onClick={triggerSos}
               disabled={isSosSubmitting}
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#8686AC]/40 bg-[#0F0E47] px-4 py-3 text-sm font-bold tracking-wide text-white shadow-[0_0_20px_rgba(15,14,71,0.4)] transition hover:bg-[#272757] disabled:cursor-wait disabled:opacity-60"
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#F4EFEA]/40 bg-[#1A0F0A] px-4 py-3 text-sm font-bold tracking-wide text-white shadow-[0_0_20px_rgba(26, 15, 10,0.4)] transition hover:bg-[#A68C7B] disabled:cursor-wait disabled:opacity-60"
             >
               <Siren size={18} />
               {isSosSubmitting ? 'DISPATCHING...' : 'TRIGGER EMERGENCY SOS'}
@@ -222,28 +222,28 @@ function PublicScan() {
             )}
           </section>
 
-          <div className="my-7 h-px bg-[#505081]/25" />
+          <div className="my-7 h-px bg-[#3A2316]/25" />
           <h2 className="text-lg font-bold text-white">Report an Issue</h2>
-          <p className="mt-1 text-xs text-[#8686AC]">Select everything that applies. The owner will be notified privately.</p>
+          <p className="mt-1 text-xs text-[#F4EFEA]">Select everything that applies. The owner will be notified privately.</p>
 
           <form onSubmit={handleSubmit} className="mt-5 pb-2">
             <fieldset>
-              <legend className="text-xs font-semibold text-[#8686AC]">What needs attention?</legend>
+              <legend className="text-xs font-semibold text-[#F4EFEA]">What needs attention?</legend>
               <div className="mt-2.5 grid gap-2.5 sm:grid-cols-2">
                 {ISSUE_TYPES.map((issue) => (
                   <label
                     key={issue}
-                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border p-3 text-xs font-semibold transition hover:border-[#8686AC] ${
+                    className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border p-3 text-xs font-semibold transition hover:border-[#F4EFEA] ${
                       selectedIssues.includes(issue)
-                        ? 'border-[#8686AC] bg-[#272757] text-white shadow-[0_0_12px_rgba(134,134,172,0.25)]'
-                        : 'border-[#505081]/35 bg-[#0F0E47] text-[#8686AC]'
+                        ? 'border-[#F4EFEA] bg-[#A68C7B] text-white shadow-[0_0_12px_rgba(244, 239, 234,0.25)]'
+                        : 'border-[#3A2316]/35 bg-[#1A0F0A] text-[#F4EFEA]'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={selectedIssues.includes(issue)}
                       onChange={() => toggleIssue(issue)}
-                      className="h-4 w-4 accent-[#505081]"
+                      className="h-4 w-4 accent-[#3A2316]"
                     />
                     {issue}
                   </label>
@@ -253,7 +253,7 @@ function PublicScan() {
 
             {selectedIssues.includes('Custom') && (
               <>
-                <label className="mt-5 block text-xs font-semibold text-[#8686AC]" htmlFor="message">
+                <label className="mt-5 block text-xs font-semibold text-[#F4EFEA]" htmlFor="message">
                   Additional Message Details
                 </label>
                 <textarea
@@ -263,26 +263,26 @@ function PublicScan() {
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   placeholder="Add helpful details for the owner..."
-                  className="mt-1.5 mb-2 min-h-28 w-full resize-y rounded-xl border border-[#505081]/40 bg-[#272757] p-3 text-sm text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC] focus:ring-1 focus:ring-[#8686AC]"
+                  className="mt-1.5 mb-2 min-h-28 w-full resize-y rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] p-3 text-sm text-white outline-none placeholder:text-[#F4EFEA]/50 focus:border-[#F4EFEA] focus:ring-1 focus:ring-[#F4EFEA]"
                 />
               </>
             )}
 
-            <label className="mt-5 block text-xs font-semibold text-[#8686AC]" htmlFor="image">
-              Photo Evidence <span className="font-normal text-[#8686AC]/60">(optional)</span>
+            <label className="mt-5 block text-xs font-semibold text-[#F4EFEA]" htmlFor="image">
+              Photo Evidence <span className="font-normal text-[#F4EFEA]/60">(optional)</span>
             </label>
             <input
               id="image"
               type="file"
               accept="image/*"
               onChange={(event) => setImage(event.target.files?.[0] || null)}
-              className="mt-1.5 block w-full cursor-pointer rounded-xl border border-[#505081]/40 bg-[#272757] text-xs text-[#8686AC] file:mr-4 file:border-0 file:bg-[#0F0E47] file:px-4 file:py-2.5 file:font-semibold file:text-white hover:border-[#8686AC]"
+              className="mt-1.5 block w-full cursor-pointer rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] text-xs text-[#F4EFEA] file:mr-4 file:border-0 file:bg-[#1A0F0A] file:px-4 file:py-2.5 file:font-semibold file:text-white hover:border-[#F4EFEA]"
             />
             {imagePreviewUrl && (
               <img
                 src={imagePreviewUrl}
                 alt="Selected evidence preview"
-                className="mt-3 h-20 w-20 rounded-xl object-cover ring-1 ring-[#505081]/40"
+                className="mt-3 h-20 w-20 rounded-xl object-cover ring-1 ring-[#3A2316]/40"
               />
             )}
 
@@ -310,22 +310,22 @@ function PublicScan() {
       </div>
       {showSosConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" aria-labelledby="sos-title" className="w-full max-w-sm rounded-2xl border border-[#505081]/50 bg-[#0F0E47] p-6 text-white shadow-2xl">
+          <div role="dialog" aria-modal="true" aria-labelledby="sos-title" className="w-full max-w-sm rounded-2xl border border-[#3A2316]/50 bg-[#1A0F0A] p-6 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <Siren className="text-[#8686AC]" size={24} />
+                <Siren className="text-[#F4EFEA]" size={24} />
                 <h2 id="sos-title" className="mt-3 text-xl font-bold">Trigger emergency SOS?</h2>
               </div>
               <button
                 type="button"
                 aria-label="Close confirmation"
                 onClick={() => setShowSosConfirm(false)}
-                className="rounded-lg p-1 text-[#8686AC] hover:bg-white/10 hover:text-white"
+                className="rounded-lg p-1 text-[#F4EFEA] hover:bg-white/10 hover:text-white"
               >
                 <X size={18} />
               </button>
             </div>
-            <p className="mt-3 text-xs leading-5 text-[#8686AC]">
+            <p className="mt-3 text-xs leading-5 text-[#F4EFEA]">
               The vehicle owner and emergency contact will be alerted immediately. Your location coordinates will be attached if granted.
             </p>
             <textarea
@@ -334,7 +334,7 @@ function PublicScan() {
               rows="3"
               maxLength="500"
               placeholder="Optional details (e.g. smoke detected, blocked medical vehicle)"
-              className="mt-4 w-full resize-none rounded-xl border border-[#505081]/40 bg-[#272757] p-3 text-xs text-white outline-none placeholder:text-[#8686AC]/50 focus:border-[#8686AC]"
+              className="mt-4 w-full resize-none rounded-xl border border-[#3A2316]/40 bg-[#A68C7B] p-3 text-xs text-white outline-none placeholder:text-[#F4EFEA]/50 focus:border-[#F4EFEA]"
             />
             <div className="mt-5 grid grid-cols-2 gap-3">
               <button
