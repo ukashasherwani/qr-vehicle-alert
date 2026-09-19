@@ -51,7 +51,9 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
   try {
-    await mongoose.connect(getMongoUri());
+    await mongoose.connect(getMongoUri(), {
+      serverSelectionTimeoutMS: 10000,
+    });
     httpServer.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });
