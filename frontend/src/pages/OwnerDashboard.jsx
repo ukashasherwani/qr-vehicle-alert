@@ -535,23 +535,23 @@ function OwnerDashboard() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-start gap-3">
-                          <div className="shrink-0 rounded-xl border border-[var(--border-divider)] bg-white p-1.5 shadow-sm">
-                            <QRCodeCanvas id={`vehicle-qr-${vehicle._id}`} value={scanUrl} size={88} level="M" includeMargin />
-                          </div>
-                          <div className="min-w-0 py-0.5">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-body)]">
-                              Active Decal
-                            </span>
-                            <h3 className="mt-0.5 truncate text-base font-bold text-[var(--text-primary)]">
-                              {vehicle.plateNumber}
-                            </h3>
-                            <p className="mt-0.5 text-xs text-[var(--text-body)] truncate">
-                              {vehicle.model || 'Model not specified'}
-                            </p>
-                            <p className="mt-1.5 text-[11px] text-[var(--text-muted)]">
-                              Owner: {vehicle.ownerPhone || 'Masked'}
-                            </p>
-                          </div>
+                            <div className="shrink-0 rounded-xl border border-[var(--border-divider)] bg-white p-1.5 shadow-sm">
+                              <QRCodeCanvas id={`vehicle-qr-${vehicle._id}`} value={scanUrl} size={88} level="M" includeMargin />
+                            </div>
+                            <div className="min-w-0 py-0.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-body)]">
+                                Active Decal
+                              </span>
+                              <h3 className="mt-0.5 truncate text-base font-bold text-[var(--text-primary)]">
+                                {vehicle.plateNumber}
+                              </h3>
+                              <p className="mt-0.5 text-xs text-[var(--text-body)] truncate">
+                                {vehicle.model || 'Model not specified'}
+                              </p>
+                              <p className="mt-1.5 text-[11px] text-[var(--text-muted)]">
+                                Owner: {vehicle.ownerPhone || 'Masked'}
+                              </p>
+                            </div>
                           </div>
                           <div className="flex shrink-0 items-center gap-1">
                             <button
@@ -563,14 +563,15 @@ function OwnerDashboard() {
                             >
                               <Pencil size={14} />
                             </button>
+
                             <button
                               type="button"
-                              onClick={() => handleDeleteVehicle(vehicle)}
-                              className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
-                              title="Delete vehicle"
-                              aria-label={`Delete ${vehicle.plateNumber}`}
+                              onClick={() => downloadVehiclePdf(vehicle, scanUrl)}
+                              className="ml-auto rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
+                              title="Download QR Code"
+                              aria-label={`Download QR Code for ${vehicle.plateNumber}`}
                             >
-                              <Trash2 size={14} />
+                              <Download size={14} />
                             </button>
                           </div>
                         </div>
@@ -578,12 +579,12 @@ function OwnerDashboard() {
                         <div className="flex items-center justify-between border-t border-[var(--border-divider)] pt-2.5">
                           <button
                             type="button"
-                            onClick={() => downloadVehiclePdf(vehicle, scanUrl)}
-                            className="ml-auto rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
-                            title="Download QR Code"
-                            aria-label={`Download QR Code for ${vehicle.plateNumber}`}
+                            onClick={() => handleDeleteVehicle(vehicle)}
+                            className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
+                            title="Delete vehicle"
+                            aria-label={`Delete ${vehicle.plateNumber}`}
                           >
-                            <Download size={14} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </article>
@@ -933,9 +934,8 @@ function OwnerDashboard() {
                             </span>
                           </td>
                           <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                              vehicleAlertCount > 0 ? 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]' : 'bg-[var(--bg-card-inner)] text-[var(--text-body)]'
-                            }`}>
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${vehicleAlertCount > 0 ? 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]' : 'bg-[var(--bg-card-inner)] text-[var(--text-body)]'
+                              }`}>
                               {vehicleAlertCount} alerts
                             </span>
                           </td>
@@ -998,11 +998,10 @@ function OwnerDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveSettingsTab('delivery')}
-                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
-                  activeSettingsTab === 'delivery'
+                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${activeSettingsTab === 'delivery'
                     ? 'border-[var(--border-divider)] text-[var(--text-primary)]'
                     : 'border-transparent text-[var(--text-body)] hover:text-[var(--text-primary)]'
-                }`}
+                  }`}
               >
                 <Sliders size={13} className={activeSettingsTab === 'delivery' ? 'text-[var(--text-primary)]' : ''} />
                 <span>Alert Routing Preferences</span>
@@ -1011,11 +1010,10 @@ function OwnerDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveSettingsTab('printing')}
-                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
-                  activeSettingsTab === 'printing'
+                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${activeSettingsTab === 'printing'
                     ? 'border-[var(--border-divider)] text-[var(--text-primary)]'
                     : 'border-transparent text-[var(--text-body)] hover:text-[var(--text-primary)]'
-                }`}
+                  }`}
               >
                 <FileText size={13} className={activeSettingsTab === 'printing' ? 'text-[var(--text-primary)]' : ''} />
                 <span>Sticker Placement Guide</span>
@@ -1024,11 +1022,10 @@ function OwnerDashboard() {
               <button
                 type="button"
                 onClick={() => setActiveSettingsTab('security')}
-                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${
-                  activeSettingsTab === 'security'
+                className={`flex items-center gap-2 py-3 px-3 text-xs font-bold transition border-b-2 whitespace-nowrap ${activeSettingsTab === 'security'
                     ? 'border-[var(--border-divider)] text-[var(--text-primary)]'
                     : 'border-transparent text-[var(--text-body)] hover:text-[var(--text-primary)]'
-                }`}
+                  }`}
               >
                 <ShieldCheck size={13} className={activeSettingsTab === 'security' ? 'text-[var(--text-primary)]' : ''} />
                 <span>Anonymity & Security</span>
