@@ -1,24 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Vehicle = require('../models/Vehicle');
-const Alert = require('../models/Alert');
 const crypto = require('crypto');
 const adminAuth = require('../middlewares/adminAuth');
+const {
+  createVehicle,
+  getOwnerVehicles,
+  updateVehicle,
+  deleteVehicle,
+} = require('../controllers/vehicleController');
 
 const router = express.Router();
 
-router.post('/', async (req, res, next) => {
-  try {
-    const vehicle = await Vehicle.create({
-      ...req.body,
-      ownerPhone: req.body.ownerPhone || req.body.phoneNumber,
-      phoneNumber: undefined,
-    });
-    res.status(201).json(vehicle);
-  } catch (error) {
-    next(error);
-  }
-});
+router.post('/', createVehicle);
+
+router.put('/:id', updateVehicle);
+
+router.delete('/:id', deleteVehicle);
 
 router.patch('/:id/status', adminAuth, async (req, res, next) => {
   try {
@@ -48,25 +46,7 @@ router.post('/:id/regenerate', adminAuth, async (req, res, next) => {
   }
 });
 
-router.delete('/:id', adminAuth, async (req, res, next) => {
-  try {
-    const vehicle = await Vehicle.findByIdAndDelete(req.params.id);
-    if (!vehicle) return res.status(404).json({ message: 'Vehicle not found' });
-    await Alert.deleteMany({ vehicleId: req.params.id });
-    return res.json({ success: true, message: 'Vehicle deleted' });
-  } catch (error) {
-    return next(error);
-  }
-});
-
-router.get('/owner/:clerkId', async (req, res, next) => {
-  try {
-    const vehicles = await Vehicle.find({ ownerClerkId: req.params.clerkId });
-    res.json(vehicles);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get('/owner/:clerkId', getOwnerVehicles);
 
 router.get('/:id', async (req, res, next) => {
   try {

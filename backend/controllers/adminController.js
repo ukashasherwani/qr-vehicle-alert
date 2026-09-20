@@ -150,6 +150,7 @@ const getUsers = async (req, res, next) => {
               _id: '$_id',
               plateNumber: '$plateNumber',
               model: '$model',
+              isDeleted: { $ifNull: ['$isDeleted', false] },
               qrStatus: { $ifNull: ['$qrStatus', 'active'] },
             },
           },
@@ -212,7 +213,7 @@ const getUsers = async (req, res, next) => {
 const getUserDetails = async (req, res, next) => {
   try {
     const vehicles = await Vehicle.find({ ownerClerkId: req.params.id })
-      .select('plateNumber model ownerPhone phoneNumber ownerEmail qrStatus')
+      .select('plateNumber model ownerPhone phoneNumber ownerEmail qrStatus isDeleted')
       .lean();
     if (vehicles.length === 0) {
       return res.status(404).json({ success: false, message: 'User details not found' });
@@ -336,6 +337,7 @@ const getVehicles = async (req, res, next) => {
 
     const formattedVehicles = vehicles.map((v) => ({
       ...v,
+      isDeleted: Boolean(v.isDeleted),
       qrStatus: String(v.qrStatus || 'ACTIVE').toUpperCase(),
       totalAlerts: countMap[v._id.toString()] || v.alertCount || 0,
       alertCount: v.alertCount ?? countMap[v._id.toString()] ?? 0,
@@ -411,10 +413,13 @@ const deleteVehicle = async (req, res, next) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({ success: false, message: 'Invalid vehicle ID' });
     }
-    const vehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    const vehicle = await Vehicle.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isDeleted: true } },
+      { new: true },
+    );
     if (!vehicle) return res.status(404).json({ success: false, message: 'Vehicle not found' });
-    await Alert.deleteMany({ vehicleId: req.params.id });
-    res.json({ success: true, message: 'Vehicle and associated alerts deleted.' });
+    res.json({ success: true, message: 'Vehicle deleted.', data: vehicle });
   } catch (error) {
     next(error);
   }

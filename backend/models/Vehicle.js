@@ -27,8 +27,11 @@ const vehicleSchema = new mongoose.Schema({
   plateNumber: {
     type: String,
     required: true,
-    unique: true,
     set: (value) => value.trim().toUpperCase(),
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
   model: {
     type: String,
@@ -53,5 +56,7 @@ const vehicleSchema = new mongoose.Schema({
     default: 0,
   },
 }, { timestamps: true });
+
+vehicleSchema.index({ plateNumber: 1, isDeleted: 1 }, { unique: true });
 
 module.exports = mongoose.model('Vehicle', vehicleSchema);

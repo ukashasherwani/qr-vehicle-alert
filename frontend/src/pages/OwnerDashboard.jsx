@@ -1,22 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth, useUser } from '@clerk/clerk-react'
+import { jsPDF } from 'jspdf'
 import {
   AlertCircle,
   BellRing,
   CarFront,
   Check,
   CheckCircle2,
-  Clock,
   Copy,
+  Download,
   ExternalLink,
   FileText,
+  Pencil,
   Plus,
-  QrCode,
   RefreshCw,
   Search,
   ShieldCheck,
   Sliders,
   Smartphone,
+  Trash2,
   TrendingUp,
   Zap,
 } from 'lucide-react'
@@ -133,6 +135,9 @@ function OwnerDashboard() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [toast, setToast] = useState('')
+  const [editingVehicle, setEditingVehicle] = useState(null)
+  const [editForm, setEditForm] = useState({ plateNumber: '', model: '', ownerPhone: '' })
+  const [isEditing, setIsEditing] = useState(false)
 
   // Section 3 & 4 Interactive UI States
   const [searchQuery, setSearchQuery] = useState('')
@@ -275,6 +280,87 @@ function OwnerDashboard() {
     }
   }
 
+  const openEditVehicle = (vehicle) => {
+    setEditingVehicle(vehicle)
+    setEditForm({
+      plateNumber: vehicle.plateNumber || '',
+      model: vehicle.model || '',
+      ownerPhone: vehicle.ownerPhone || '',
+    })
+    setError('')
+  }
+
+  const handleEditVehicle = async (event) => {
+    event.preventDefault()
+    setIsEditing(true)
+    setError('')
+
+    try {
+      const token = await getToken()
+      const response = await fetch(apiUrl(`/vehicles/${editingVehicle._id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...editForm, ownerClerkId: user.id }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.message || 'Unable to update vehicle.')
+
+      setEditingVehicle(null)
+      setSuccess('Vehicle updated successfully.')
+      await loadDashboard()
+    } catch (editError) {
+      setError(editError.message)
+    } finally {
+      setIsEditing(false)
+    }
+  }
+
+  const handleDeleteVehicle = async (vehicle) => {
+    if (!window.confirm(`Delete ${vehicle.plateNumber}?`)) return
+
+    try {
+      const token = await getToken()
+      const response = await fetch(apiUrl(`/vehicles/${vehicle._id}`), {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ownerClerkId: user.id }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.message || 'Unable to delete vehicle.')
+
+      setSuccess('Vehicle deleted successfully.')
+      await loadDashboard()
+    } catch (deleteError) {
+      setError(deleteError.message)
+    }
+  }
+
+  const downloadVehiclePdf = (vehicle, scanUrl) => {
+    const qrCanvas = document.getElementById(`vehicle-qr-${vehicle._id}`)
+    if (!qrCanvas) {
+      setError('Unable to generate the QR code PDF.')
+      return
+    }
+
+    const pdf = new jsPDF()
+    pdf.setFontSize(20)
+    pdf.text('QR Vehicle Alert', 20, 25)
+    pdf.setFontSize(14)
+    pdf.text(`Plate Number: ${vehicle.plateNumber}`, 20, 42)
+    pdf.text(`Make / Model: ${vehicle.model || 'Not specified'}`, 20, 52)
+    pdf.text(`Owner Phone: ${vehicle.ownerPhone || 'Not specified'}`, 20, 62)
+    pdf.addImage(qrCanvas.toDataURL('image/png'), 'PNG', 20, 75, 70, 70)
+    pdf.setFontSize(10)
+    pdf.text(scanUrl, 20, 158)
+    pdf.save(`${vehicle.plateNumber || 'vehicle'}-qr-code.pdf`)
+  }
+
   const copyToClipboard = (text, label) => {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(text)
@@ -335,6 +421,29 @@ function OwnerDashboard() {
       className="min-h-[calc(100vh-81px)] bg-[var(--bg-main)] text-[var(--text-primary)] selection:bg-[var(--bg-card)] selection:text-[var(--text-primary)]"
       style={{ paddingLeft: 'var(--container-px)', paddingRight: 'var(--container-px)', paddingTop: 'clamp(1.5rem, 3vw, 2.5rem)', paddingBottom: '2rem' }}
     >
+      {editingVehicle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="edit-vehicle-title">
+          <form onSubmit={handleEditVehicle} className="glass-card w-full max-w-md rounded-2xl border border-[var(--border-divider)] bg-[var(--bg-card)] p-6 shadow-2xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 id="edit-vehicle-title" className="text-lg font-bold">Edit Vehicle</h2>
+              <button type="button" onClick={() => setEditingVehicle(null)} className="rounded-lg p-1.5 text-[var(--text-body)] hover:text-[var(--text-primary)]" aria-label="Close edit vehicle dialog">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <label className="block text-xs font-semibold text-[var(--text-body)]" htmlFor="edit-plateNumber">License Plate Number *</label>
+            <input id="edit-plateNumber" required value={editForm.plateNumber} onChange={(event) => setEditForm({ ...editForm, plateNumber: event.target.value })} className="mt-1.5 w-full rounded-xl border border-[var(--border-divider)] bg-[var(--bg-card-inner)] px-3 py-2 text-sm outline-none" />
+            <label className="mt-3 block text-xs font-semibold text-[var(--text-body)]" htmlFor="edit-model">Vehicle Make / Model</label>
+            <input id="edit-model" value={editForm.model} onChange={(event) => setEditForm({ ...editForm, model: event.target.value })} className="mt-1.5 w-full rounded-xl border border-[var(--border-divider)] bg-[var(--bg-card-inner)] px-3 py-2 text-sm outline-none" />
+            <label className="mt-3 block text-xs font-semibold text-[var(--text-body)]" htmlFor="edit-ownerPhone">Owner Phone *</label>
+            <input id="edit-ownerPhone" required type="tel" value={editForm.ownerPhone} onChange={(event) => setEditForm({ ...editForm, ownerPhone: event.target.value })} className="mt-1.5 w-full rounded-xl border border-[var(--border-divider)] bg-[var(--bg-card-inner)] px-3 py-2 text-sm outline-none" />
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingVehicle(null)} className="rounded-xl border border-[var(--border-divider)] px-4 py-2 text-sm">Cancel</button>
+              <button disabled={isEditing} type="submit" className="btn-primary rounded-xl px-4 py-2 text-sm">{isEditing ? 'Saving...' : 'Save Changes'}</button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {toast && (
         <div role="status" className="fixed right-4 top-24 z-50 rounded-xl border border-[var(--border-divider)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-[0_8px_30px_rgba(0,0,0,0.4),0_0_15px_rgba(136,136,136,0.25)]">
           <span className="flex items-center gap-2">
@@ -424,9 +533,10 @@ function OwnerDashboard() {
                         className={`glass-card card-hover-glow observe-fade ${idx < 3 ? `delay-${idx + 1}` : ''} flex flex-col justify-between gap-3 rounded-2xl border border-[var(--border-divider)] bg-[var(--bg-card)] text-[var(--text-primary)]`}
                         style={{ padding: 'var(--card-padding)' }}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-start gap-3">
                           <div className="shrink-0 rounded-xl border border-[var(--border-divider)] bg-white p-1.5 shadow-sm">
-                            <QRCodeCanvas value={scanUrl} size={88} level="M" includeMargin />
+                            <QRCodeCanvas id={`vehicle-qr-${vehicle._id}`} value={scanUrl} size={88} level="M" includeMargin />
                           </div>
                           <div className="min-w-0 py-0.5">
                             <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-body)]">
@@ -442,27 +552,38 @@ function OwnerDashboard() {
                               Owner: {vehicle.ownerPhone || 'Masked'}
                             </p>
                           </div>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => openEditVehicle(vehicle)}
+                              className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
+                              title="Edit vehicle"
+                              aria-label={`Edit ${vehicle.plateNumber}`}
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteVehicle(vehicle)}
+                              className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
+                              title="Delete vehicle"
+                              aria-label={`Delete ${vehicle.plateNumber}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between border-t border-[var(--border-divider)] pt-2.5">
-                          <a
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text-body)] hover:text-[var(--text-primary)] transition"
-                            href={`/scan/${vehicle._id}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <QrCode size={13} />
-                            <span>Open scan portal</span>
-                          </a>
-
                           <button
                             type="button"
-                            onClick={() => copyToClipboard(scanUrl, 'Scan URL')}
-                            className="text-xs text-[var(--text-body)] hover:text-[var(--text-primary)] transition flex items-center gap-1"
-                            title="Copy Scan URL"
+                            onClick={() => downloadVehiclePdf(vehicle, scanUrl)}
+                            className="ml-auto rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] transition hover:text-[var(--text-primary)]"
+                            title="Download QR Code"
+                            aria-label={`Download QR Code for ${vehicle.plateNumber}`}
                           >
-                            <Copy size={13} />
-                            <span>Copy link</span>
+                            <Download size={14} />
                           </button>
                         </div>
                       </article>
