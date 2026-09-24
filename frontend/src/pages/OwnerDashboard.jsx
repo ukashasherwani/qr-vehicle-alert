@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth, useUser } from '@clerk/clerk-react'
+import { SignInButton, SignUpButton, useAuth, useUser } from '@clerk/clerk-react'
 import { jsPDF } from 'jspdf'
 import {
-  AlertCircle,
   BellRing,
   CarFront,
-  Check,
   CheckCircle2,
   Copy,
   Download,
@@ -26,48 +24,6 @@ import { QRCodeCanvas } from 'qrcode.react'
 import { io } from 'socket.io-client'
 import { apiUrl, BACKEND_URL } from '../api/config'
 import ThemeToggle from '../components/ThemeToggle'
-
-function statusClasses(status) {
-  if (status === 'resolved') {
-    return 'bg-[var(--bg-card-inner)] text-[var(--text-body)] border border-[var(--border-divider)]'
-  }
-
-  if (status === 'in-progress') {
-    return 'bg-[var(--bg-card-secondary)]/30 text-[var(--text-primary)] border border-[var(--border-divider)]'
-  }
-
-  return 'bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-divider)]'
-}
-
-function urgencyClasses(urgency) {
-  if (urgency === 'high') {
-    return 'animate-pulse bg-[var(--bg-card-secondary)]/40 text-[var(--text-primary)] border border-[var(--border-divider)]'
-  }
-
-  if (urgency === 'medium') {
-    return 'bg-[var(--bg-card-inner)] text-[var(--text-body)] border border-[var(--border-divider)]'
-  }
-
-  return 'bg-[var(--bg-card-inner)] text-[var(--text-body)] border border-[var(--border-divider)]'
-}
-
-function getAlertContent(alert) {
-  const issueTypes = (alert.issueType || '')
-    .split(',')
-    .map((issue) => issue.trim())
-    .filter(Boolean)
-  const predefinedIssues = issueTypes.filter((issue) => issue !== 'Custom')
-  const customMessage = alert.message?.trim()
-
-  if (predefinedIssues.length > 0) {
-    return { title: predefinedIssues.join(', '), message: customMessage }
-  }
-
-  return {
-    title: customMessage || 'Custom alert',
-    message: undefined,
-  }
-}
 
 /* ------------------------------------------------------------------ */
 /* Custom hook: IntersectionObserver scroll-reveal                     */
@@ -131,7 +87,9 @@ function OwnerDashboard() {
   const [alerts, setAlerts] = useState([])
   const [form, setForm] = useState({ plateNumber: '', model: '', ownerPhone: '' })
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [toast, setToast] = useState('')
@@ -176,35 +134,18 @@ function OwnerDashboard() {
   }, [user])
 
   const handleRefresh = () => {
+    if (!isSignedIn) return
     setError('')
-    loadDashboard()
-  }
-
-  const handleResolveAlert = async (alertId) => {
-    try {
-      const token = await getToken()
-      const response = await fetch(apiUrl(`/alerts/${alertId}/status`), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: 'resolved' }),
-      })
-
-      const result = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(result.message || 'Unable to resolve alert.')
-      setAlerts((currentAlerts) => currentAlerts.map((alert) => (
-        alert._id === alertId ? { ...alert, status: 'resolved' } : alert
-      )))
-      setToast('Alert marked as resolved.')
-    } catch (resolveError) {
-      setError(resolveError.message)
-    }
+    setIsRefreshing(true)
+    loadDashboard().finally(() => setIsRefreshing(false))
   }
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
+    if (isLoaded && !isSignedIn) {
+      // Keep the public dashboard form usable while Clerk resolves signed-out state.
+      // oxlint-disable-next-line react/set-state-in-effect
+      setIsLoading(false)
+    } else if (isLoaded && isSignedIn) {
       // The initial dashboard fetch synchronizes this view with the API.
       // oxlint-disable-next-line react/set-state-in-effect
       loadDashboard()
@@ -249,6 +190,11 @@ function OwnerDashboard() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (!isSignedIn) {
+      setShowAuthPrompt(true)
+      return
+    }
+
     setIsSaving(true)
     setError('')
     setSuccess('')
@@ -380,24 +326,15 @@ function OwnerDashboard() {
     return () => clearTimeout(timeoutId)
   }, [toast])
 
-  if (!isLoaded || isLoading) {
+  if (!isLoaded || (isSignedIn && isLoading)) {
     return (
       <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[var(--bg-main)] px-6 py-16 text-[var(--text-primary)]">
-        <div className="flex items-center gap-3 text-lg font-semibold text-[var(--text-primary)]">
-          <RefreshCw className="animate-spin text-[var(--text-body)]" size={22} />
-          Loading your Blue Eclipse Dashboard...
-        </div>
-      </div>
-    )
-  }
-
-  if (!isSignedIn) {
-    return (
-      <div className="flex min-h-[calc(100vh-81px)] items-center justify-center bg-[var(--bg-main)] px-6 py-16 text-[var(--text-primary)]">
-        <div className="glass-card rounded-2xl p-8 text-center max-w-md card-hover-glow bg-[var(--bg-card)] border border-[var(--border-divider)] text-[var(--text-primary)]">
-          <ShieldCheck className="mx-auto text-[var(--text-body)]" size={40} />
-          <h2 className="mt-4 text-xl font-bold text-[var(--text-primary)]">Sign In Required</h2>
-          <p className="mt-2 text-sm text-[var(--text-body)]">Sign in to access your vehicle registration and real-time alert logs.</p>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <RefreshCw className="animate-spin text-[var(--text-body)]" size={28} aria-hidden="true" />
+          <div>
+            <p className="text-lg font-semibold text-[var(--text-primary)]">Loading Dashboard...</p>
+            <p className="mt-1 text-sm text-[var(--text-body)] animate-pulse">Preparing your vehicle workspace</p>
+          </div>
         </div>
       </div>
     )
@@ -444,6 +381,25 @@ function OwnerDashboard() {
         </div>
       )}
 
+      {showAuthPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="auth-prompt-title">
+          <div className="glass-card w-full max-w-md rounded-2xl border border-[var(--border-divider)] bg-[var(--bg-card)] p-6 text-center shadow-2xl">
+            <ShieldCheck className="mx-auto text-[var(--text-body)]" size={40} />
+            <h2 id="auth-prompt-title" className="mt-4 text-xl font-bold text-[var(--text-primary)]">Sign in required</h2>
+            <p className="mt-2 text-sm text-[var(--text-body)]">Sign in required: Please sign in or create an account to register a vehicle decal.</p>
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
+              <button type="button" onClick={() => setShowAuthPrompt(false)} className="rounded-xl border border-[var(--border-divider)] px-4 py-2 text-sm font-semibold transition hover:border-neutral-400">Cancel</button>
+              <SignInButton mode="modal">
+                <button type="button" className="btn-secondary rounded-xl px-4 py-2 text-sm">Sign In</button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button type="button" className="btn-primary rounded-xl px-4 py-2 text-sm">Create Account</button>
+              </SignUpButton>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <div role="status" className="fixed right-4 top-24 z-50 rounded-xl border border-[var(--border-divider)] bg-[var(--bg-card)] px-4 py-3 text-sm font-semibold text-[var(--text-primary)] shadow-[0_8px_30px_rgba(0,0,0,0.4),0_0_15px_rgba(136,136,136,0.25)]">
           <span className="flex items-center gap-2">
@@ -473,9 +429,10 @@ function OwnerDashboard() {
           <button
             type="button"
             onClick={handleRefresh}
-            className="btn-secondary !h-10 !px-4 !text-xs !rounded-xl observe-fade delay-2"
+            disabled={!isSignedIn || isRefreshing}
+            className="btn-secondary !h-10 !px-4 !text-xs !rounded-xl border border-[var(--border-divider)] transition hover:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-60 observe-fade delay-2"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
             <span>Refresh Dashboard</span>
           </button>
         </div>
@@ -652,80 +609,6 @@ function OwnerDashboard() {
             </form>
           </div>
 
-          {/* Incoming Alerts Sub-container */}
-          <div className="mt-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="text-[#1A0F0A]" size={18} />
-              <h3 className="text-base font-bold text-[#1A0F0A]">Live Incoming Alerts</h3>
-              <span className="ml-1 rounded-full bg-[var(--bg-card)] border border-[var(--border-divider)] px-2 py-0.5 text-xs font-bold text-[var(--text-primary)]">
-                {alerts.length}
-              </span>
-            </div>
-
-            <div className="glass-card overflow-hidden rounded-2xl border border-[var(--border-divider)] bg-[var(--bg-card)] text-[var(--text-primary)]">
-              {alerts.length === 0 ? (
-                <div className="p-6 text-center text-[var(--text-body)]">
-                  <CheckCircle2 className="mx-auto mb-2 text-[var(--text-body)]" size={26} />
-                  <p className="font-semibold text-[var(--text-primary)]">All clear!</p>
-                  <p className="text-xs text-[var(--text-muted)]">No open incident alerts or emergency broadcasts reported for your vehicles.</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-[#3A2316]/20">
-                  {alerts.map((alert) => {
-                    const alertContent = getAlertContent(alert)
-                    return (
-                      <article
-                        key={alert._id}
-                        className="observe-fade flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between transition hover:bg-[var(--bg-card-inner)]"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-[var(--text-primary)] text-sm">
-                              {alertContent.title}
-                            </span>
-                          </div>
-                          {alertContent.message && (
-                            <p className="text-sm text-[var(--text-body)]">{alertContent.message}</p>
-                          )}
-                          <p className="text-xs text-[var(--text-muted)]">
-                            Vehicle: <span className="text-[var(--text-primary)] font-semibold">{alert.vehicleId?.plateNumber || 'Unknown'}</span> · {new Date(alert.createdAt).toLocaleString()}
-                          </p>
-                          {alert.imageUrl && (
-                            <a href={alert.imageUrl} target="_blank" rel="noreferrer" className="mt-1.5 inline-block">
-                              <img
-                                src={alert.imageUrl}
-                                alt="Alert evidence"
-                                className="h-16 w-16 rounded-xl object-cover ring-1 ring-[#3A2316]/40 transition hover:opacity-80"
-                              />
-                            </a>
-                          )}
-                        </div>
-
-                        <div className="flex w-fit shrink-0 flex-wrap items-center gap-2">
-                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ${urgencyClasses(alert.urgency)}`}>
-                            {alert.urgency || 'low'} urgency
-                          </span>
-                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ${statusClasses(alert.status)}`}>
-                            {alert.status || 'pending'}
-                          </span>
-                          {(alert.status || 'pending') === 'pending' && (
-                            <button
-                              type="button"
-                              onClick={() => handleResolveAlert(alert._id)}
-                              className="btn-primary !h-7 !px-3 !text-xs !rounded-full"
-                            >
-                              <Check size={12} />
-                              <span>Resolve</span>
-                            </button>
-                          )}
-                        </div>
-                      </article>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
         </section>
 
         {/* ============================================================ */}

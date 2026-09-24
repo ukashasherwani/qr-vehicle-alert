@@ -1,5 +1,5 @@
 const requiredEnvironmentVariables = [
-  ['MONGODB_URI', 'MONGODB_URI or legacy MONGO_URI'],
+  ['MONGODB_URI', 'MONGODB_URI'],
   ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_CLOUD_NAME'],
   ['CLOUDINARY_API_KEY', 'CLOUDINARY_API_KEY'],
   ['CLOUDINARY_API_SECRET', 'CLOUDINARY_API_SECRET'],
@@ -15,7 +15,7 @@ const requiredEnvironmentVariables = [
   ['TWILIO_PHONE_NUMBER', 'TWILIO_PHONE_NUMBER'],
 ];
 
-const getMongoUri = () => process.env.MONGODB_URI || process.env.MONGO_URI;
+const getMongoUri = () => process.env.MONGODB_URI;
 const getEnvironmentValue = (variable) => {
   if (variable === 'BREVO_SMTP_HOST') return process.env.BREVO_SMTP_HOST || process.env.SMTP_HOST;
   if (variable === 'BREVO_SMTP_PORT') return process.env.BREVO_SMTP_PORT || process.env.SMTP_PORT;

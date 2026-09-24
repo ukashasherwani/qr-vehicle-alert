@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']); // Forces Google & Cloudflare DNS
+// const dns = require('dns');
+// dns.setServers(['8.8.8.8', '1.1.1.1']); // Forces Google & Cloudflare DNS
 
 const cors = require('cors');
 const express = require('express');
@@ -68,9 +68,10 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
   try {
-    await mongoose.connect(getMongoUri(), {
+    const conn = await mongoose.connect(getMongoUri(), {
       serverSelectionTimeoutMS: 10000,
     });
+    console.log(`MongoDB Connected: ${conn.connection.name}`);
     httpServer.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
     });

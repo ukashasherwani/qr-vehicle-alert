@@ -1,7 +1,6 @@
 import { ClerkProvider } from '@clerk/clerk-react'
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
-import ThemeToggle from './components/ThemeToggle'
 import { ThemeProvider } from './context/ThemeContext'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
 import Home from './pages/Home'
@@ -32,7 +31,6 @@ function PublicLayout() {
       <div className="pt-20">
         <Outlet />
       </div>
-      <ThemeToggle />
     </>
   )
 }

@@ -20,12 +20,12 @@ export default function ThemeToggle({ variant = 'floating' }) {
         {isDark ? (
           <>
             <Sun size={15} className="text-[#E8E8E8] transition-transform duration-300 rotate-0 hover:rotate-45" />
-            <span>Light Mode (#E8E8E8)</span>
+            <span className="hidden sm:inline">Light Mode</span>
           </>
         ) : (
           <>
             <Moon size={15} className="text-[#000000] transition-transform duration-300 -rotate-12 hover:rotate-0" />
-            <span>Dark Mode (#000000)</span>
+            <span className="hidden sm:inline">Dark Mode</span>
           </>
         )}
       </button>
