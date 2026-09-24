@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import { SignInButton, SignUpButton, useAuth, useUser } from '@clerk/clerk-react'
 import { jsPDF } from 'jspdf'
 import {
@@ -10,6 +10,7 @@ import {
   ExternalLink,
   FileText,
   Pencil,
+  Clock3,
   Plus,
   RefreshCw,
   Search,
@@ -96,6 +97,8 @@ function OwnerDashboard() {
   const [editingVehicle, setEditingVehicle] = useState(null)
   const [editForm, setEditForm] = useState({ plateNumber: '', model: '', ownerPhone: '' })
   const [isEditing, setIsEditing] = useState(false)
+  const [expandedVehicleAlerts, setExpandedVehicleAlerts] = useState([])
+  const [resolvingAlertId, setResolvingAlertId] = useState(null)
 
   // Section 3 & 4 Interactive UI States
   const [searchQuery, setSearchQuery] = useState('')
@@ -176,17 +179,87 @@ function OwnerDashboard() {
       )))
     }
 
+    const handleSosAlert = ({ alert }) => {
+      if (!alert || alert.vehicleId?.ownerClerkId !== user.id) return
+
+      setAlerts((currentAlerts) => (
+        currentAlerts.some((currentAlert) => currentAlert._id === alert._id)
+          ? currentAlerts
+          : [alert, ...currentAlerts]
+      ))
+      setToast('Critical SOS alert received for your vehicle!')
+    }
+
+    const handleSosAlertUpdated = ({ alert }) => {
+      if (!alert || alert.vehicleId?.ownerClerkId !== user.id) return
+      setAlerts((currentAlerts) => currentAlerts.map((currentAlert) => (
+        currentAlert._id === alert._id ? { ...currentAlert, ...alert } : currentAlert
+      )))
+    }
+
     socket.on('newAlert', handleNewAlert)
     socket.on('alertUpdated', handleAlertUpdated)
     socket.on('alertStatusChanged', handleAlertUpdated)
+    socket.on('sosEmergencyAlert', handleSosAlert)
+    socket.on('sosAlertUpdated', handleSosAlertUpdated)
 
     return () => {
       socket.off('newAlert', handleNewAlert)
       socket.off('alertUpdated', handleAlertUpdated)
       socket.off('alertStatusChanged', handleAlertUpdated)
+      socket.off('sosEmergencyAlert', handleSosAlert)
+      socket.off('sosAlertUpdated', handleSosAlertUpdated)
       socket.disconnect()
     }
   }, [isLoaded, isSignedIn, user])
+
+  useEffect(() => {
+    const vehicleIdsWithAlerts = vehicles
+      .filter((vehicle) => alerts.some((alert) => (alert.vehicleId?._id || alert.vehicleId) === vehicle._id))
+      .map((vehicle) => vehicle._id)
+
+    setExpandedVehicleAlerts((currentVehicleIds) => [
+      ...new Set([...currentVehicleIds, ...vehicleIdsWithAlerts]),
+    ])
+  }, [vehicles, alerts])
+
+  useEffect(() => {
+    if (window.location.hash !== '#alerts-section') return
+    const timeoutId = window.setTimeout(() => {
+      document.getElementById('alerts-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
+    return () => window.clearTimeout(timeoutId)
+  }, [alerts, vehicles])
+
+  const handleResolveAlert = async (alert) => {
+    setResolvingAlertId(alert._id)
+    setError('')
+
+    try {
+      const token = await getToken()
+      const isSosAlert = alert.alertType === 'CRITICAL_SOS'
+      const response = await fetch(apiUrl(isSosAlert ? `/sos/${alert._id}/resolve` : `/alerts/${alert._id}/status`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(isSosAlert ? { status: 'resolved' } : { status: 'resolved' }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.message || 'Unable to resolve alert.')
+
+      const updatedAlert = body.data || body
+      setAlerts((currentAlerts) => currentAlerts.map((currentAlert) => (
+        currentAlert._id === updatedAlert._id ? { ...currentAlert, ...updatedAlert } : currentAlert
+      )))
+      setSuccess('Alert marked as resolved.')
+    } catch (resolveError) {
+      setError(resolveError.message)
+    } finally {
+      setResolvingAlertId(null)
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -746,7 +819,7 @@ function OwnerDashboard() {
         {/* ============================================================ */}
         {/* SECTION 3: INTERACTIVE DATA TABLE / MANAGEMENT              */}
         {/* ============================================================ */}
-        <section aria-labelledby="section-3-heading">
+        <section id="alerts-section" aria-labelledby="section-3-heading" className="scroll-mt-28">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[var(--border-divider)] pb-3 mb-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--bg-card)] border border-[var(--border-divider)] text-xs font-bold text-[var(--text-primary)] shadow-[0_0_10px_rgba(0,0,0,0.3)]">
@@ -796,60 +869,92 @@ function OwnerDashboard() {
                   ) : (
                     filteredVehicles.map((vehicle) => {
                       const scanUrl = `${window.location.origin}/scan/${vehicle._id}`
-                      const vehicleAlertCount = alerts.filter(
-                        (a) => (a.vehicleId?._id || a.vehicleId) === vehicle._id
-                      ).length
+                      const vehicleAlerts = alerts.filter(
+                        (alert) => (alert.vehicleId?._id || alert.vehicleId) === vehicle._id,
+                      )
+                      const vehicleAlertCount = vehicleAlerts.length
 
                       return (
-                        <tr
-                          key={vehicle._id}
-                          className="bg-[var(--bg-card)] transition-all hover:bg-[var(--bg-card-inner)] hover:-translate-y-px"
-                        >
-                          <td className="px-4 py-3.5 font-bold text-[var(--text-primary)] whitespace-nowrap">
-                            {vehicle.plateNumber}
-                          </td>
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            {vehicle.model || '—'}
-                          </td>
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="rounded-md bg-[var(--bg-card-inner)] border border-[var(--border-divider)] px-2 py-0.5 font-mono text-[11px] text-[var(--text-body)]">
-                              {vehicle.ownerPhone || 'Masked'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${vehicleAlertCount > 0 ? 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]' : 'bg-[var(--bg-card-inner)] text-[var(--text-body)]'
-                              }`}>
-                              {vehicleAlertCount} alerts
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5 whitespace-nowrap">
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[var(--text-body)]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#F4EFEA] animate-pulse" />
-                              Ready & Verified
-                            </span>
-                          </td>
-                          <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                            <div className="inline-flex items-center gap-2">
+                        <Fragment key={vehicle._id}>
+                          <tr className="bg-[var(--bg-card)] transition-all hover:bg-[var(--bg-card-inner)] hover:-translate-y-px">
+                            <td className="px-4 py-3.5 font-bold text-[var(--text-primary)] whitespace-nowrap">
+                              {vehicle.plateNumber}
+                            </td>
+                            <td className="px-4 py-3.5 whitespace-nowrap">{vehicle.model || '—'}</td>
+                            <td className="px-4 py-3.5 whitespace-nowrap">
+                              <span className="rounded-md bg-[var(--bg-card-inner)] border border-[var(--border-divider)] px-2 py-0.5 font-mono text-[11px] text-[var(--text-body)]">
+                                {vehicle.ownerPhone || 'Masked'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 whitespace-nowrap">
                               <button
                                 type="button"
-                                onClick={() => copyToClipboard(scanUrl, 'Decal Scan URL')}
-                                className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] hover:border-[var(--border-divider)] hover:text-[var(--text-primary)] transition"
-                                title="Copy Scan URL"
+                                onClick={() => setExpandedVehicleAlerts((current) => current.includes(vehicle._id)
+                                  ? current.filter((vehicleId) => vehicleId !== vehicle._id)
+                                  : [...current, vehicle._id])}
+                                className={`inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold transition hover:ring-1 hover:ring-[var(--border-focus)] ${vehicleAlertCount > 0 ? 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]' : 'bg-[var(--bg-card-inner)] text-[var(--text-body)]'}`}
+                                aria-expanded={expandedVehicleAlerts.includes(vehicle._id)}
                               >
-                                <Copy size={13} />
+                                <BellRing size={11} />
+                                {vehicleAlertCount} alert{vehicleAlertCount === 1 ? '' : 's'}
                               </button>
-                              <a
-                                href={`/scan/${vehicle._id}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] hover:border-[var(--border-divider)] hover:text-[var(--text-primary)] transition"
-                                title="Open Decal Scan Portal"
-                              >
-                                <ExternalLink size={13} />
-                              </a>
-                            </div>
-                          </td>
-                        </tr>
+                            </td>
+                            <td className="px-4 py-3.5 whitespace-nowrap">
+                              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[var(--text-body)]">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#F4EFEA] animate-pulse" />
+                                Ready & Verified
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                              <div className="inline-flex items-center gap-2">
+                                <button type="button" onClick={() => copyToClipboard(scanUrl, 'Decal Scan URL')} className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] hover:text-[var(--text-primary)] transition" title="Copy Scan URL">
+                                  <Copy size={13} />
+                                </button>
+                                <a href={`/scan/${vehicle._id}`} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] p-1.5 text-[var(--text-body)] hover:text-[var(--text-primary)] transition" title="Open Decal Scan Portal">
+                                  <ExternalLink size={13} />
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                          {expandedVehicleAlerts.includes(vehicle._id) && (
+                            <tr>
+                              <td colSpan={6} className="bg-[var(--bg-card-inner)] px-4 py-3">
+                                <div className="space-y-2">
+                                  {vehicleAlerts.length === 0 ? (
+                                    <p className="text-xs text-[var(--text-body)]">No alerts recorded for this vehicle.</p>
+                                  ) : vehicleAlerts.map((alert) => {
+                                    const isHighUrgency = alert.urgency === 'high' || alert.alertType === 'CRITICAL_SOS'
+                                    const isResolved = alert.status === 'resolved' || alert.status === 'dismissed'
+                                    const urgencyLabel = alert.alertType === 'CRITICAL_SOS'
+                                      ? 'AI: Critical SOS'
+                                      : `AI: ${alert.urgency || 'low'} urgency`
+                                    return (
+                                      <article key={alert._id} className={`rounded-xl border p-3 ${isHighUrgency ? 'border-red-400/60 bg-red-500/10' : 'border-[var(--border-divider)] bg-[var(--bg-card)]'}`}>
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                          <div className="min-w-0">
+                                            <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-wide">
+                                              <span className={isHighUrgency ? 'text-red-500' : 'text-[var(--text-body)]'}>{urgencyLabel}</span>
+                                              <span className="text-[var(--text-muted)]">{alert.alertType === 'CRITICAL_SOS' ? 'SOS' : alert.issueType}</span>
+                                              <span className={`rounded-full px-2 py-0.5 ${isResolved ? 'bg-emerald-500/15 text-emerald-500' : 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]'}`}>{alert.status}</span>
+                                            </div>
+                                            <p className="mt-1.5 text-sm font-semibold text-[var(--text-primary)]">{alert.message || 'No message provided.'}</p>
+                                            <p className="mt-1 flex items-center gap-1 text-[11px] text-[var(--text-muted)]"><Clock3 size={12} />{new Date(alert.createdAt).toLocaleString()}</p>
+                                          </div>
+                                          {!isResolved && (
+                                            <button type="button" onClick={() => handleResolveAlert(alert)} disabled={resolvingAlertId === alert._id} className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--btn-primary-bg)] px-3 py-2 text-xs font-semibold text-[var(--btn-primary-text)] transition hover:opacity-80 disabled:cursor-wait disabled:opacity-60">
+                                              <CheckCircle2 size={14} />
+                                              {resolvingAlertId === alert._id ? 'Resolving...' : 'Mark Resolved'}
+                                            </button>
+                                          )}
+                                        </div>
+                                      </article>
+                                    )
+                                  })}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
                       )
                     })
                   )}

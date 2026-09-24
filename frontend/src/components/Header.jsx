@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { SignedIn, SignedOut, UserButton, useClerk } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, UserButton, useClerk, useUser } from '@clerk/clerk-react'
 import { motion } from 'framer-motion'
 import { NavLink, useLocation } from 'react-router-dom'
-import { QrCode } from 'lucide-react'
+import { BellRing, QrCode } from 'lucide-react'
+import { io } from 'socket.io-client'
 import ThemeToggle from './ThemeToggle'
 import { useTheme } from '../context/ThemeContext'
+import { apiUrl, BACKEND_URL } from '../api/config'
 
 function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -14,9 +16,63 @@ function Header() {
   const [mobileMiddleNavWidth, setMobileMiddleNavWidth] = useState(0)
   const { theme } = useTheme()
   const { openSignIn, openSignUp } = useClerk()
+  const { isLoaded, isSignedIn, user } = useUser()
   const location = useLocation()
   const isHomePage = location.pathname === '/'
   const isDark = theme === 'dark'
+  const [alerts, setAlerts] = useState([])
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) {
+      setAlerts([])
+      return undefined
+    }
+
+    let isMounted = true
+    fetch(apiUrl(`/alerts/owner/${encodeURIComponent(user.id)}`))
+      .then((response) => (response.ok ? response.json() : []))
+      .then((ownerAlerts) => {
+        if (isMounted) setAlerts(Array.isArray(ownerAlerts) ? ownerAlerts : [])
+      })
+      .catch(() => {})
+
+    const socket = io(BACKEND_URL)
+    const belongsToOwner = (alert, ownerId = user.id) => (
+      alert?.vehicleId?.ownerClerkId === ownerId
+    )
+    const addAlert = (alert) => {
+      if (!belongsToOwner(alert)) return
+      setAlerts((currentAlerts) => (
+        currentAlerts.some((currentAlert) => currentAlert._id === alert._id)
+          ? currentAlerts
+          : [alert, ...currentAlerts]
+      ))
+    }
+    const updateAlert = ({ alert }) => {
+      if (!belongsToOwner(alert)) return
+      setAlerts((currentAlerts) => currentAlerts.map((currentAlert) => (
+        currentAlert._id === alert._id ? { ...currentAlert, ...alert } : currentAlert
+      )))
+    }
+
+    socket.on('newAlert', ({ alert, vehicleOwnerClerkId }) => {
+      if (vehicleOwnerClerkId === user.id) addAlert(alert)
+    })
+    socket.on('sosEmergencyAlert', ({ alert }) => addAlert(alert))
+    socket.on('alertUpdated', updateAlert)
+    socket.on('alertStatusChanged', updateAlert)
+    socket.on('sosAlertUpdated', updateAlert)
+
+    return () => {
+      isMounted = false
+      socket.disconnect()
+    }
+  }, [isLoaded, isSignedIn, user])
+
+  const pendingAlerts = alerts.filter((alert) => !['resolved', 'dismissed'].includes(alert.status))
+  const hasHighUrgencyAlert = pendingAlerts.some((alert) => (
+    alert.urgency === 'high' || alert.alertType === 'CRITICAL_SOS'
+  ))
 
   const publicAuthAppearance = {
     variables: {
@@ -209,6 +265,22 @@ function Header() {
 
         {/* Right Section: Auth & Action Buttons */}
         <div className="flex items-center gap-3">
+          {isSignedIn && pendingAlerts.length > 0 && (
+            <NavLink
+              to="/dashboard#alerts-section"
+              className={`relative inline-flex h-10 w-10 items-center justify-center rounded-xl border transition hover:scale-105 ${hasHighUrgencyAlert
+                ? 'border-red-500/60 bg-red-500/10 text-red-500'
+                : 'border-neutral-300 bg-white/70 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/70 dark:text-neutral-200'
+                }`}
+              title="Open pending vehicle alerts"
+              aria-label={`${pendingAlerts.length} pending vehicle alert${pendingAlerts.length === 1 ? '' : 's'}`}
+            >
+              <BellRing size={18} className="animate-pulse" />
+              <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {pendingAlerts.length}
+              </span>
+            </NavLink>
+          )}
           <SignedOut>
             <button
               className="btn-secondary !h-9 sm:!h-10 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !rounded-xl"
