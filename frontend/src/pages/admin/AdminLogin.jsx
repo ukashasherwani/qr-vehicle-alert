@@ -16,7 +16,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-[#0a0a0c] px-4 py-12 text-white sm:px-6 lg:px-8">
+    <div className="admin-login-shell flex min-h-screen flex-col justify-center px-4 py-12 text-white sm:px-6 lg:px-8">
       {/* Background Glow Effect */}
       <div className="pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden">
         <div className="h-[400px] w-[500px] rounded-full bg-cyan-600/10 blur-[120px]" />
@@ -75,12 +75,19 @@ export default function AdminLogin() {
                 borderRadius: '0.75rem',
               },
               elements: {
-                card: 'border border-white/10 shadow-2xl bg-[#121215]',
-                headerTitle: 'text-slate-100',
-                headerSubtitle: 'text-slate-400',
-                formButtonPrimary: 'bg-white hover:bg-white/85 text-black font-semibold',
-                footerActionText: 'text-white/50',
-                footerActionLink: 'text-white hover:text-white/70',
+                card: 'admin-login-card border border-white shadow-2xl',
+                headerTitle: 'admin-login-title',
+                headerSubtitle: 'admin-login-subtitle',
+                socialButtonsBlockButton: 'admin-login-social-button',
+                socialButtonsBlockButtonText: 'admin-login-social-text',
+                dividerLine: 'admin-login-divider-line',
+                dividerText: 'admin-login-divider-text',
+                formFieldLabel: 'admin-login-label',
+                formFieldInput: 'admin-login-input',
+                formButtonPrimary: 'admin-login-button',
+                footer: 'admin-login-footer',
+                footerActionText: 'admin-login-footer-text',
+                footerActionLink: 'admin-login-footer-link',
               },
             }}
           />

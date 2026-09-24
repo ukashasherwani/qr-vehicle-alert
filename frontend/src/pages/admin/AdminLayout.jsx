@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
+import ThemeToggle from '../../components/ThemeToggle'
 
 const NAV_ITEMS = [
   { name: 'Dashboard Overview', path: '/admin', icon: BarChart3, exact: true },
@@ -109,6 +110,7 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle variant="inline" />
             <div className="text-right">
               <p className="text-xs font-semibold text-slate-200">{user?.fullName || 'Administrator'}</p>
               <p className="text-[10px] font-medium text-slate-400">Super Admin</p>

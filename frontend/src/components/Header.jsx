@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, UserButton, useClerk } from '@clerk/clerk-react'
 import { motion } from 'framer-motion'
 import { NavLink, useLocation } from 'react-router-dom'
 import { QrCode } from 'lucide-react'
@@ -9,11 +9,40 @@ import { useTheme } from '../context/ThemeContext'
 function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const middleNavRef = useRef(null)
+  const mobileMiddleNavRef = useRef(null)
   const [middleNavWidth, setMiddleNavWidth] = useState(0)
+  const [mobileMiddleNavWidth, setMobileMiddleNavWidth] = useState(0)
   const { theme } = useTheme()
+  const { openSignIn, openSignUp } = useClerk()
   const location = useLocation()
   const isHomePage = location.pathname === '/'
   const isDark = theme === 'dark'
+
+  const publicAuthAppearance = {
+    variables: {
+      colorPrimary: '#000000',
+      colorBackground: '#181818',
+      colorText: '#E8E8E8',
+      colorTextSecondary: '#B8B8B8',
+      colorInputBackground: '#000000',
+      colorInputText: '#E8E8E8',
+      colorNeutral: '#B8B8B8',
+      borderRadius: '0.75rem',
+    },
+    elements: {
+      modalBackdrop: 'bg-black/75 backdrop-blur-none',
+      modalContent: 'bg-[#181818] border border-[#888888] shadow-2xl',
+      card: 'bg-[#181818] border border-[#888888] shadow-2xl',
+      headerTitle: 'text-[#E8E8E8]',
+      headerSubtitle: 'text-[#B8B8B8]',
+      formFieldLabel: 'text-[#E8E8E8]',
+      formFieldInput: 'bg-black border-[#888888] text-[#E8E8E8]',
+      formButtonPrimary: 'bg-[#E8E8E8] text-black hover:bg-white',
+      footer: 'bg-[#181818] border-t border-[#484848]',
+      footerActionText: 'text-[#B8B8B8]',
+      footerActionLink: 'text-[#E8E8E8] hover:text-white',
+    },
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +63,17 @@ function Header() {
     if (!element) return undefined
 
     const updateWidth = () => setMiddleNavWidth(element.scrollWidth)
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const element = mobileMiddleNavRef.current
+    if (!element) return undefined
+
+    const updateWidth = () => setMobileMiddleNavWidth(element.scrollWidth)
     updateWidth()
     const observer = new ResizeObserver(updateWidth)
     observer.observe(element)
@@ -170,22 +210,20 @@ function Header() {
         {/* Right Section: Auth & Action Buttons */}
         <div className="flex items-center gap-3">
           <SignedOut>
-            <SignInButton mode="modal">
-              <button
-                className="btn-secondary !h-9 sm:!h-10 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !rounded-xl"
-                type="button"
-              >
-                Sign In
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button
-                className="btn-primary !h-9 sm:!h-10 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !rounded-xl"
-                type="button"
-              >
-                Sign Up
-              </button>
-            </SignUpButton>
+            <button
+              className="btn-secondary !h-9 sm:!h-10 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !rounded-xl"
+              type="button"
+              onClick={() => openSignIn({ appearance: publicAuthAppearance })}
+            >
+              Sign In
+            </button>
+            <button
+              className="btn-primary !h-9 sm:!h-10 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !rounded-xl"
+              type="button"
+              onClick={() => openSignUp({ appearance: publicAuthAppearance })}
+            >
+              Sign Up
+            </button>
           </SignedOut>
 
           <SignedIn>
@@ -220,6 +258,67 @@ function Header() {
           </SignedIn>
         </div>
       </div>
+
+      <nav className="mt-3 flex items-center gap-5 overflow-x-auto border-t border-neutral-300/60 pb-1 pt-3 dark:border-neutral-700/60 md:hidden" aria-label="Mobile navigation">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `relative shrink-0 whitespace-nowrap select-none text-xs font-medium transition-all ${isActive ? 'font-bold text-neutral-900 dark:text-white' : 'text-neutral-600 dark:text-neutral-400 hover:font-semibold hover:text-neutral-900 dark:hover:text-white'}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              Home
+              {isActive && (
+                <motion.span
+                  layoutId="mobileActiveNavIndicator"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-current"
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                />
+              )}
+            </>
+          )}
+        </NavLink>
+
+        <motion.div
+          ref={mobileMiddleNavRef}
+          className="flex shrink-0 items-center gap-5"
+          initial={false}
+          animate={{
+            clipPath: isHomePage ? 'inset(0% 0% 0% 0%)' : 'inset(0% 100% 0% 0%)',
+            marginRight: isHomePage ? 0 : -(mobileMiddleNavWidth + 20),
+          }}
+          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+          aria-hidden={!isHomePage}
+        >
+          <button type="button" onClick={() => scrollToSection('features')} className="shrink-0 whitespace-nowrap select-none text-xs font-medium text-neutral-600 transition-all hover:font-semibold hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+            Features
+          </button>
+          <button type="button" onClick={() => scrollToSection('about')} className="shrink-0 whitespace-nowrap select-none text-xs font-medium text-neutral-600 transition-all hover:font-semibold hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+            How It Works
+          </button>
+        </motion.div>
+
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `relative shrink-0 whitespace-nowrap select-none text-xs font-medium transition-all ${isActive ? 'font-bold text-neutral-900 dark:text-white' : 'text-neutral-600 dark:text-neutral-400 hover:font-semibold hover:text-neutral-900 dark:hover:text-white'}`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              Owner Portal
+              {isActive && (
+                <motion.span
+                  layoutId="mobileActiveNavIndicator"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-current"
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                />
+              )}
+            </>
+          )}
+        </NavLink>
+      </nav>
     </header>
   )
 }

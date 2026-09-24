@@ -49,7 +49,7 @@ function App() {
             </Route>
 
             {/* Isolated Admin Login (Direct URL Access Only) */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/login/*" element={<AdminLogin />} />
 
             {/* Protected Hidden Admin Portal */}
             <Route
