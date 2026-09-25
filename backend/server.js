@@ -15,6 +15,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const sosRoutes = require('./routes/sosRoutes');
 
 const app = express();
+app.set('trust proxy', 1);
 const httpServer = http.createServer(app);
 const allowedOrigins = [
   process.env.CLIENT_URL,
