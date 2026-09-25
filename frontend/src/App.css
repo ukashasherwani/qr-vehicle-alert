@@ -12,6 +12,18 @@
 	border-color: rgb(var(--color-light-rgb) / 30%) !important;
 }
 
+.notification-bell-icon {
+	color: #000000 !important;
+}
+
+.dark .notification-bell-icon {
+	color: #ffffff !important;
+}
+
+.notification-bell-icon.is-high-urgency {
+	color: #ef4444 !important;
+}
+
 /* Admin utility colors are normalized here so the portal shares the site palette. */
 .admin-shell,
 .admin-shell [class*="bg-[#0a0a0c]"],
@@ -97,6 +109,16 @@
 .admin-shell [class*="border-white/"],
 .admin-shell [class*="border-slate-"] {
 	border-color: var(--border-divider) !important;
+}
+
+.admin-shell .admin-user-details-panel {
+	background-color: var(--bg-card) !important;
+	opacity: 1;
+}
+
+.admin-shell .admin-mobile-nav {
+	background-color: var(--bg-card) !important;
+	opacity: 1;
 }
 
 /* The login route is outside .admin-shell but uses the same Tailwind utilities. */

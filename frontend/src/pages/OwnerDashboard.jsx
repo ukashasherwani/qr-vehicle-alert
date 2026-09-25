@@ -938,6 +938,14 @@ function OwnerDashboard() {
                                               <span className={`rounded-full px-2 py-0.5 ${isResolved ? 'bg-emerald-500/15 text-emerald-500' : 'bg-[var(--bg-card-secondary)] text-[var(--text-primary)]'}`}>{alert.status}</span>
                                             </div>
                                             <p className="mt-1.5 text-sm font-semibold text-[var(--text-primary)]">{alert.message || 'No message provided.'}</p>
+                                            {alert.imageUrl && (
+                                              <img
+                                                src={alert.imageUrl}
+                                                alt="Attached vehicle alert"
+                                                loading="lazy"
+                                                className="mt-3 block max-h-64 w-full rounded-lg border border-[var(--border-divider)] bg-[var(--bg-card-inner)] object-contain"
+                                              />
+                                            )}
                                             <p className="mt-1 flex items-center gap-1 text-[11px] text-[var(--text-muted)]"><Clock3 size={12} />{new Date(alert.createdAt).toLocaleString()}</p>
                                           </div>
                                           {!isResolved && (

@@ -49,10 +49,14 @@ function Header() {
       ))
     }
     const updateAlert = ({ alert }) => {
-      if (!belongsToOwner(alert)) return
+      if (!alert) return
       setAlerts((currentAlerts) => currentAlerts.map((currentAlert) => (
         currentAlert._id === alert._id ? { ...currentAlert, ...alert } : currentAlert
       )))
+    }
+    const removeAlert = ({ alertId }) => {
+      if (!alertId) return
+      setAlerts((currentAlerts) => currentAlerts.filter((alert) => alert._id !== alertId))
     }
 
     socket.on('newAlert', ({ alert, vehicleOwnerClerkId }) => {
@@ -62,6 +66,7 @@ function Header() {
     socket.on('alertUpdated', updateAlert)
     socket.on('alertStatusChanged', updateAlert)
     socket.on('sosAlertUpdated', updateAlert)
+    socket.on('alertDeleted', removeAlert)
 
     return () => {
       isMounted = false
@@ -69,7 +74,7 @@ function Header() {
     }
   }, [isLoaded, isSignedIn, user])
 
-  const pendingAlerts = alerts.filter((alert) => !['resolved', 'dismissed'].includes(alert.status))
+  const pendingAlerts = alerts.filter((alert) => ['pending', 'active'].includes(String(alert.status || '').toLowerCase()))
   const hasHighUrgencyAlert = pendingAlerts.some((alert) => (
     alert.urgency === 'high' || alert.alertType === 'CRITICAL_SOS'
   ))
@@ -275,7 +280,7 @@ function Header() {
               title="Open pending vehicle alerts"
               aria-label={`${pendingAlerts.length} pending vehicle alert${pendingAlerts.length === 1 ? '' : 's'}`}
             >
-              <BellRing size={18} className="animate-pulse" />
+              <BellRing size={18} className={`notification-bell-icon animate-pulse ${hasHighUrgencyAlert ? 'is-high-urgency' : ''}`} />
               <span className="absolute -right-1 -top-1 flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                 {pendingAlerts.length}
               </span>

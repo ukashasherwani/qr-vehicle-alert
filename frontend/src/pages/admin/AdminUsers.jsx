@@ -258,7 +258,7 @@ export default function AdminUsers() {
 
       {selectedUser && (
         <div className="fixed inset-0 z-30 flex justify-end bg-black/60" onClick={() => setSelectedUser(null)}>
-          <aside className="h-full w-full max-w-lg overflow-y-auto border-l border-white/10 bg-[#121215] p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <aside className="admin-user-details-panel h-full w-full max-w-lg overflow-y-auto border-l border-white/10 bg-[#121215] p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs uppercase tracking-wider text-slate-400">User details</p>

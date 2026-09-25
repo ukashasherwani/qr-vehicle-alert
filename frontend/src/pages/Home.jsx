@@ -120,7 +120,10 @@ function Home() {
       {
         fps: 10,
         qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
+        rememberLastUsedCamera: false,
+        videoConstraints: {
+          facingMode: { ideal: 'environment' },
+        },
       },
       false,
     )

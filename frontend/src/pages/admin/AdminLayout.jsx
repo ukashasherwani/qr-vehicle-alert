@@ -133,7 +133,7 @@ export default function AdminLayout() {
             onClick={() => setIsMobileMenuOpen(false)}
             className="absolute inset-0 bg-black/70"
           />
-          <aside className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10 bg-[#121215] shadow-2xl">
+          <aside className="admin-mobile-nav relative flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10 bg-[#121215] shadow-2xl">
             <div className="flex h-16 items-center justify-between border-b border-white/10 px-6">
               <span className="text-sm font-bold text-white">Admin navigation</span>
               <button type="button" aria-label="Close admin navigation" onClick={() => setIsMobileMenuOpen(false)} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white">
