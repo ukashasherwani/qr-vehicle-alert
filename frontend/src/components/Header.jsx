@@ -29,12 +29,21 @@ function Header() {
     }
 
     let isMounted = true
-    fetch(apiUrl(`/alerts/owner/${encodeURIComponent(user.id)}`))
+    const refreshAlerts = () => fetch(apiUrl(`/alerts/owner/${encodeURIComponent(user.id)}`))
       .then((response) => (response.ok ? response.json() : []))
       .then((ownerAlerts) => {
         if (isMounted) setAlerts(Array.isArray(ownerAlerts) ? ownerAlerts : [])
       })
       .catch(() => {})
+
+    refreshAlerts()
+
+    const handleWindowFocus = () => refreshAlerts()
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshAlerts()
+    }
+    window.addEventListener('focus', handleWindowFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     const socket = io(BACKEND_URL)
     const belongsToOwner = (alert, ownerId = user.id) => (
@@ -70,6 +79,8 @@ function Header() {
 
     return () => {
       isMounted = false
+      window.removeEventListener('focus', handleWindowFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       socket.disconnect()
     }
   }, [isLoaded, isSignedIn, user])
@@ -78,6 +89,13 @@ function Header() {
   const hasHighUrgencyAlert = pendingAlerts.some((alert) => (
     alert.urgency === 'high' || alert.alertType === 'CRITICAL_SOS'
   ))
+
+  const handleBellClick = (event) => {
+    if (location.pathname !== '/dashboard') return
+
+    event.preventDefault()
+    document.getElementById('alerts-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const publicAuthAppearance = {
     variables: {
@@ -273,6 +291,7 @@ function Header() {
           {isSignedIn && pendingAlerts.length > 0 && (
             <NavLink
               to="/dashboard#alerts-section"
+              onClick={handleBellClick}
               className={`relative inline-flex h-10 w-10 items-center justify-center rounded-xl border transition hover:scale-105 ${hasHighUrgencyAlert
                 ? 'border-red-500/60 bg-red-500/10 text-red-500'
                 : 'border-neutral-300 bg-white/70 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/70 dark:text-neutral-200'
